@@ -13,10 +13,13 @@ import (
 
 const useHighPerformanceRenderer = false
 
-var header ui.IHeader = ui.Header(entity.Command{})
+var (
+	command          = entity.NewCmd()
+	home    ui.IHome = ui.NewHome(command)
+)
 
 type model struct {
-	*entity.Command
+	home *entity.Command
 }
 
 func (m *model) Init() tea.Cmd {
@@ -36,38 +39,41 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		headerHeight := lipgloss.Height(header.HeaderView())
-		footerHeight := lipgloss.Height(header.FooterView())
+		headerHeight := lipgloss.Height(home.HeaderView())
+		footerHeight := lipgloss.Height(home.FooterView())
 		verticalMarginHeight := headerHeight + footerHeight
 
-		if !m.Ready {
-			m.Viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
-			m.Viewport.YPosition = headerHeight
-			m.Viewport.HighPerformanceRendering = useHighPerformanceRenderer
-			m.Viewport.SetContent(m.Content)
-			m.Ready = true
+		if !m.home.Ready {
+			m.home.Viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
+			m.home.Viewport.YPosition = headerHeight
+			m.home.Viewport.HighPerformanceRendering = useHighPerformanceRenderer
+			m.home.Viewport.SetContent(m.home.Content)
+			m.home.Ready = true
 
-			m.Viewport.YPosition = headerHeight + 1
+			m.home.Viewport.YPosition = headerHeight + 1
 		} else {
-			m.Viewport.Width = msg.Width
-			m.Viewport.Height = msg.Height - verticalMarginHeight
+			m.home.Viewport.Width = msg.Width
+			m.home.Viewport.Height = msg.Height - verticalMarginHeight
 		}
 		if useHighPerformanceRenderer {
-			cmds = append(cmds, viewport.Sync(m.Viewport))
+			cmds = append(cmds, viewport.Sync(m.home.Viewport))
 		}
 	}
 
-	m.Viewport, cmd = m.Viewport.Update(msg)
+	home.WindowUpdate(m.home)
+
+	m.home.Viewport, cmd = m.home.Viewport.Update(msg)
 	cmds = append(cmds, cmd)
+	ui.NewHome(m.home)
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m model) View() string {
-	if !m.Ready {
+	if !m.home.Ready {
 		return "\n  Initializing..."
 	}
-	return fmt.Sprintf("%s\n%s\n%s", header.HeaderView(), m.Viewport.View(), header.FooterView())
+	return fmt.Sprintf("%s\n%s\n%s", home.HeaderView(), m.home.Viewport.View(), home.FooterView())
 }
 
 func main() {
@@ -76,7 +82,8 @@ func main() {
 		fmt.Println("could not load file:", err)
 		os.Exit(1)
 	}
-	m := model{entity.NewCmd(string(content))}
+	m := model{home: entity.NewCmd()}
+	m.home.Content = string(content)
 	p := tea.NewProgram(
 		&m,
 		tea.WithAltScreen(),

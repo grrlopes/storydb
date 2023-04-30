@@ -7,25 +7,32 @@ import (
 	"github.com/grrlopes/storydb/entity"
 )
 
-type IHeader interface {
+type IHome interface {
 	HeaderView() string
 	FooterView() string
+	WindowUpdate(msg *entity.Command)
 }
 
-type modelHeader struct {
-	entity.Command
+type modelHome struct {
+	home *entity.Command
 }
 
-func Header(m entity.Command) IHeader {
-	return &modelHeader{}
+func NewHome(m *entity.Command) IHome {
+	return &modelHome{
+		home: m,
+	}
 }
 
-func (m *modelHeader) HeaderView() string {
-	line := strings.Repeat("─", Max(0, m.Viewport.Width))
+func (m *modelHome) WindowUpdate(msg *entity.Command) {
+	m.home = msg
+}
+
+func (m modelHome) HeaderView() string {
+	line := strings.Repeat("─", Max(0, m.home.Viewport.Width))
 	return lipgloss.JoinHorizontal(lipgloss.Center, line)
 }
 
-func (m *modelHeader) FooterView() string {
-	line := strings.Repeat("─", Max(0, m.Viewport.Width))
+func (m modelHome) FooterView() string {
+	line := strings.Repeat("─", Max(0, m.home.Viewport.Width))
 	return lipgloss.JoinHorizontal(lipgloss.Center, line)
 }

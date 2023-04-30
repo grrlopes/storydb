@@ -10,9 +10,8 @@ type Command struct {
 	Viewport viewport.Model
 }
 
-func NewCmd(data string) *Command {
-	m := Command{
-		Content: data,
-	}
+func NewCmd() *Command {
+	m := Command{}
+
 	return &m
 }
