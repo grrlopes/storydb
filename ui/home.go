@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/viewport"
@@ -11,13 +10,6 @@ import (
 )
 
 const useHighPerformanceRenderer = false
-
-type IHome interface {
-	HeaderView() string
-	FooterView() string
-	WindowUpdate(msg *entity.Command)
-	Update(m tea.Msg) (*entity.Command, tea.Cmd)
-}
 
 type ModelHome struct {
 	home entity.Command
@@ -94,8 +86,14 @@ func (m ModelHome) Update(msg tea.Msg) (ModelHome, tea.Cmd) {
 }
 
 func (m ModelHome) View() string {
+	view := lipgloss.NewStyle()
+	content := lipgloss.NewStyle().Italic(true)
 	if !m.home.Ready {
 		return "\n  Initializing..."
 	}
-	return fmt.Sprintf("%s\n%s\n%s", m.HeaderView(), m.home.Viewport.View(), m.FooterView())
+
+	return view.Render(
+		m.HeaderView()) +
+		content.Render(m.home.Viewport.View()) + "\n" +
+		view.Render(m.FooterView())
 }

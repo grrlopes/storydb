@@ -5,6 +5,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/grrlopes/storydb/entity"
 	"github.com/grrlopes/storydb/ui"
 )
@@ -26,16 +27,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	return m.home.View()
+	return lipgloss.NewStyle().Render(m.home.View())
 }
 
 func main() {
 	content, err := os.ReadFile("/tmp/text.md")
+
 	if err != nil {
 		fmt.Println("could not load file:", err)
 		os.Exit(1)
 	}
-	m := model{home: ui.NewHome(entity.Command{Content: string(content)})}
+
+	m := model{
+		home: ui.NewHome(
+			entity.Command{
+				Content: string(content),
+			},
+		),
+	}
+
 	p := tea.NewProgram(
 		&m,
 		tea.WithAltScreen(),

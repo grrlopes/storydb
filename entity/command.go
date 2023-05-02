@@ -9,9 +9,3 @@ type Command struct {
 	Ready    bool
 	Viewport viewport.Model
 }
-
-func NewCmd() *Command {
-	m := Command{}
-
-	return &m
-}
