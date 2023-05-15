@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/grrlopes/storydb/entity"
 	"github.com/grrlopes/storydb/ui"
 )
-
-const useHighPerformanceRenderer = false
 
 type model struct {
 	home ui.ModelHome
@@ -27,27 +25,35 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	return lipgloss.NewStyle().Render(m.home.View())
+	return m.home.View()
 }
 
 func main() {
-	content, err := os.ReadFile("/tmp/text.md")
+	_, err := os.ReadFile("/tmp/text.md")
 
 	if err != nil {
 		fmt.Println("could not load file:", err)
 		os.Exit(1)
 	}
 
+	items := []list.Item{
+		ui.NewListPanel{EnTitle: "hhh ", Desc: "I have ’em all over my house"},
+		ui.NewListPanel{EnTitle: "hhh ", Desc: "I have ’em all over my house"},
+		ui.NewListPanel{EnTitle: "hhh ", Desc: "I have ’em all over my house"},
+	}
+
+	j := list.New(items, list.NewDefaultDelegate(), 0, 0)
+
 	m := model{
 		home: ui.NewHome(
 			entity.Command{
-				Content: string(content),
+				Content: j,
 			},
 		),
 	}
 
 	p := tea.NewProgram(
-		&m,
+		m,
 		tea.WithAltScreen(),
 		tea.WithMouseCellMotion(),
 	)

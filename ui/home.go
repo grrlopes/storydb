@@ -9,8 +9,6 @@ import (
 	"github.com/grrlopes/storydb/entity"
 )
 
-const useHighPerformanceRenderer = false
-
 type ModelHome struct {
 	home entity.Command
 }
@@ -19,17 +17,11 @@ func NewHome(m entity.Command) ModelHome {
 	p := ModelHome{
 		home: entity.Command{
 			Content:  m.Content,
-			Cursor:   0,
-			Selected: map[int]struct{}{},
 			Ready:    false,
 			Viewport: viewport.Model{},
 		},
 	}
 	return p
-}
-
-func (m ModelHome) WindowUpdate(msg entity.Command) {
-	m.home = msg
 }
 
 func (m ModelHome) HeaderView() string {
@@ -43,57 +35,33 @@ func (m ModelHome) FooterView() string {
 }
 
 func (m ModelHome) Update(msg tea.Msg) (ModelHome, tea.Cmd) {
-	var (
-		cmd  tea.Cmd
-		cmds []tea.Cmd
-	)
-
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if k := msg.String(); k == "ctrl+c" || k == "q" || k == "esc" {
+		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
-
 	case tea.WindowSizeMsg:
-		headerHeight := lipgloss.Height(m.HeaderView())
-		footerHeight := lipgloss.Height(m.FooterView())
-		verticalMarginHeight := headerHeight + footerHeight
-
-		if !m.home.Ready {
-			m.home.Viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
-			m.home.Viewport.YPosition = headerHeight
-			m.home.Viewport.HighPerformanceRendering = useHighPerformanceRenderer
-			m.home.Viewport.SetContent(m.home.Content)
-			m.home.Ready = true
-
-			m.home.Viewport.YPosition = headerHeight + 1
-		} else {
-			m.home.Viewport.Width = msg.Width
-			m.home.Viewport.Height = msg.Height - verticalMarginHeight
-		}
-		if useHighPerformanceRenderer {
-			cmds = append(cmds, viewport.Sync(m.home.Viewport))
-		}
+		h, v := winSize.GetFrameSize()
+		m.home.Content.SetSize(msg.Width-h, msg.Height-v)
+		m.home.Viewport.Width = msg.Width
+		m.home.Viewport.Height = msg.Height
+		m.home.Ready = true
 	}
 
-	m.WindowUpdate(m.home)
-
-	m.home.Viewport, cmd = m.home.Viewport.Update(msg)
-	cmds = append(cmds, cmd)
-	NewHome(m.home)
-
-	return m, tea.Batch(cmds...)
+	var cmd tea.Cmd
+	m.home.Content, cmd = m.home.Content.Update(msg)
+	return m, cmd
 }
 
 func (m ModelHome) View() string {
 	view := lipgloss.NewStyle()
-	content := lipgloss.NewStyle().Italic(true)
+	content := lipgloss.NewStyle()
 	if !m.home.Ready {
-		return "\n  Initializing..."
+		return "\n  Loading..."
 	}
 
 	return view.Render(
-		m.HeaderView()) +
-		content.Render(m.home.Viewport.View()) + "\n" +
+		m.HeaderView()) + "\n" +
+		content.Render(m.home.Content.View()) + "\n" +
 		view.Render(m.FooterView())
 }

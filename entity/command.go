@@ -1,11 +1,12 @@
 package entity
 
-import "github.com/charmbracelet/bubbles/viewport"
+import (
+	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/viewport"
+)
 
 type Command struct {
-	Content  string
-	Cursor   int
-	Selected map[int]struct{}
+	Content  list.Model
 	Ready    bool
 	Viewport viewport.Model
 }
