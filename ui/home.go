@@ -13,15 +13,16 @@ type ModelHome struct {
 	home entity.Command
 }
 
-func NewHome(m entity.Command) ModelHome {
+func NewHome(m entity.Command) *ModelHome {
 	p := ModelHome{
 		home: entity.Command{
 			Content:  m.Content,
 			Ready:    false,
+			Selected: "",
 			Viewport: viewport.Model{},
 		},
 	}
-	return p
+	return &p
 }
 
 func (m ModelHome) HeaderView() string {
@@ -34,11 +35,18 @@ func (m ModelHome) FooterView() string {
 	return lipgloss.JoinHorizontal(lipgloss.Center, line)
 }
 
-func (m ModelHome) Update(msg tea.Msg) (ModelHome, tea.Cmd) {
+func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
+	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+c" {
-			return m, tea.Quit
+			return &m, tea.Quit
+		}
+		if msg.String() == "enter" {
+			command := m.home.Content.SelectedItem().FilterValue()
+			m.home.Selected = command
+			return &m, cmd
 		}
 	case tea.WindowSizeMsg:
 		h, v := winSize.GetFrameSize()
@@ -48,9 +56,8 @@ func (m ModelHome) Update(msg tea.Msg) (ModelHome, tea.Cmd) {
 		m.home.Ready = true
 	}
 
-	var cmd tea.Cmd
 	m.home.Content, cmd = m.home.Content.Update(msg)
-	return m, cmd
+	return &m, cmd
 }
 
 func (m ModelHome) View() string {
@@ -64,4 +71,8 @@ func (m ModelHome) View() string {
 		m.HeaderView()) + "\n" +
 		content.Render(m.home.Content.View()) + "\n" +
 		view.Render(m.FooterView())
+}
+
+func (m *ModelHome) GetSelected() string {
+	return m.home.Selected
 }

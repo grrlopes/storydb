@@ -8,5 +8,6 @@ import (
 type Command struct {
 	Content  list.Model
 	Ready    bool
+	Selected string
 	Viewport viewport.Model
 }
