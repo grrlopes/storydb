@@ -8,7 +8,17 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/grrlopes/storydb/entity"
+	"github.com/grrlopes/storydb/repositories"
+	"github.com/grrlopes/storydb/repositories/sqlite"
 	"github.com/grrlopes/storydb/ui"
+	"github.com/grrlopes/storydb/usecase/listall"
+	"github.com/grrlopes/storydb/usecase/schema"
+)
+
+var (
+	repository     repositories.ISqliteRepository = sqlite.NewSQLiteRepository()
+	usecaseMigrate schema.InputBoundary           = schema.NewMigrate(repository)
+	usecaseAll     listall.InputBoundary          = listall.NewListAll(repository)
 )
 
 type model struct {
@@ -30,10 +40,18 @@ func (m model) View() string {
 }
 
 func main() {
-	items := []list.Item{
-		ui.NewListPanel{EnTitle: "hhh", Desc: "I have ’em all over my house"},
-		ui.NewListPanel{EnTitle: "ls", Desc: "common list"},
-		ui.NewListPanel{EnTitle: "ls -l", Desc: "list in lst hehe"},
+	usecaseMigrate.Execute()
+	response, _ := usecaseAll.Execute()
+
+	items := []list.Item{}
+
+	for _, value := range response {
+		items = append(
+			items,
+			ui.NewListPanel{
+				SqliteCommand: entity.SqliteCommand(value),
+			},
+		)
 	}
 
 	data := list.New(items, list.NewDefaultDelegate(), 0, 0)
@@ -65,4 +83,5 @@ func main() {
 		m.home.GetSelected(),
 	)
 	_ = cmd.Run()
+	fmt.Printf("%+v\n", " --")
 }
