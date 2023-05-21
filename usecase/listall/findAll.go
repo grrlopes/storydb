@@ -7,7 +7,7 @@ import (
 )
 
 type InputBoundary interface {
-	Execute() ([]repositories.SqliteCmd, error)
+	Execute(int) ([]repositories.SqliteCmd, int, error)
 }
 
 type execute struct {
@@ -20,12 +20,11 @@ func NewListAll(repo repositories.ISqliteRepository) InputBoundary {
 	}
 }
 
-func (e execute) Execute() ([]repositories.SqliteCmd, error) {
-	result, err := e.repository.All()
-
+func (e execute) Execute(limit int) ([]repositories.SqliteCmd, int, error) {
+	result, count, err := e.repository.All(limit)
 	if err != nil {
-		log.Fatal("migrate:", err)
+		log.Fatal("findAll:", err)
 	}
 
-	return result, err
+	return result, count, err
 }

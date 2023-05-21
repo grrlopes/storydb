@@ -1,12 +1,22 @@
 package ui
 
 import (
+	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/grrlopes/storydb/entity"
+	"github.com/grrlopes/storydb/repositories"
+	"github.com/grrlopes/storydb/repositories/sqlite"
+	"github.com/grrlopes/storydb/usecase/pager"
+)
+
+var (
+	repository   repositories.ISqliteRepository = sqlite.NewSQLiteRepository()
+	usecasePager pager.InputBoundary            = pager.NewPager(repository)
 )
 
 type ModelHome struct {
@@ -16,10 +26,11 @@ type ModelHome struct {
 func NewHome(m entity.Command) *ModelHome {
 	p := ModelHome{
 		home: entity.Command{
-			Content:  m.Content,
-			Ready:    false,
-			Selected: "",
-			Viewport: viewport.Model{},
+			Content:   m.Content,
+			Ready:     false,
+			Selected:  "",
+			Viewport:  viewport.Model{},
+			PageTotal: m.PageTotal,
 		},
 	}
 	return &p
@@ -48,6 +59,22 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			m.home.Selected = command
 			return &m, cmd
 		}
+		if msg.String() == "o" {
+			data, _ := usecasePager.Execute(9, 18)
+			items := []list.Item{}
+
+			for _, value := range data {
+				items = append(
+					items,
+					NewListPanel{
+						SqliteCommand: entity.SqliteCommand(value),
+					},
+				)
+			}
+			m.home.Content.SetItems(items)
+			m.home.Content.ResetFilter()
+			return &m, cmd
+		}
 	case tea.WindowSizeMsg:
 		h, v := winSize.GetFrameSize()
 		m.home.Content.SetSize(msg.Width-h, msg.Height-v)
@@ -66,6 +93,9 @@ func (m ModelHome) View() string {
 	if !m.home.Ready {
 		return "\n  Loading..."
 	}
+	start, end := m.updatepagination()
+	m.home.Start = start
+	m.home.End = end
 
 	return view.Render(
 		m.HeaderView()) + "\n" +
@@ -75,4 +105,11 @@ func (m ModelHome) View() string {
 
 func (m *ModelHome) GetSelected() string {
 	return m.home.Selected
+}
+
+func (m *ModelHome) updatepagination() (int, int) {
+	start, end := m.home.Content.Paginator.GetSliceBounds(m.home.PageTotal)
+	m.home.Content.Paginator.SetTotalPages(m.home.PageTotal)
+	return start, end
+
 }

@@ -41,7 +41,7 @@ func (m model) View() string {
 
 func main() {
 	usecaseMigrate.Execute()
-	response, _ := usecaseAll.Execute()
+	response, count, _ := usecaseAll.Execute(9)
 
 	items := []list.Item{}
 
@@ -59,7 +59,8 @@ func main() {
 	m := model{
 		home: ui.NewHome(
 			entity.Command{
-				Content: data,
+				Content:   data,
+				PageTotal: count,
 			},
 		),
 	}
