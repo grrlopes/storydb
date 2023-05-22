@@ -10,7 +10,7 @@ type Command struct {
 	Ready     bool
 	Selected  string
 	Viewport  viewport.Model
-	Start     int
-	End       int
+	Start     *int
+	End       *int
 	PageTotal int
 }
