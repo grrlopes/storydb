@@ -1,10 +1,8 @@
 package ui
 
 import (
-	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -59,21 +57,11 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			m.home.Selected = command
 			return &m, cmd
 		}
-		if msg.String() == "o" {
+		if msg.String() == "right" || msg.String() == "l" {
 			data, _ := usecasePager.Execute(9, 18)
-			items := []list.Item{}
-
-			for _, value := range data {
-				items = append(
-					items,
-					NewListPanel{
-						SqliteCommand: entity.SqliteCommand(value),
-					},
-				)
-			}
-			m.home.Content.SetItems(items)
+			m.home.Content.SetItems(data)
 			m.home.Content.ResetFilter()
-			return &m, cmd
+			return &m, nil
 		}
 	case tea.WindowSizeMsg:
 		h, v := winSize.GetFrameSize()
@@ -82,7 +70,6 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Viewport.Height = msg.Height
 		m.home.Ready = true
 	}
-
 	m.home.Content, cmd = m.home.Content.Update(msg)
 	return &m, cmd
 }
@@ -94,8 +81,8 @@ func (m ModelHome) View() string {
 		return "\n  Loading..."
 	}
 	start, end := m.updatepagination()
-	m.home.Start = start
-	m.home.End = end
+	m.home.Start = &start
+	m.home.End = &end
 
 	return view.Render(
 		m.HeaderView()) + "\n" +
@@ -111,5 +98,4 @@ func (m *ModelHome) updatepagination() (int, int) {
 	start, end := m.home.Content.Paginator.GetSliceBounds(m.home.PageTotal)
 	m.home.Content.Paginator.SetTotalPages(m.home.PageTotal)
 	return start, end
-
 }

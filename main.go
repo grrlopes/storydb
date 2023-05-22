@@ -48,13 +48,14 @@ func main() {
 	for _, value := range response {
 		items = append(
 			items,
-			ui.NewListPanel{
+			entity.NewListPanel{
 				SqliteCommand: entity.SqliteCommand(value),
 			},
 		)
 	}
 
 	data := list.New(items, list.NewDefaultDelegate(), 0, 0)
+	data.SetShowPagination(false)
 
 	m := model{
 		home: ui.NewHome(

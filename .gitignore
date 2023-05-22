@@ -4,6 +4,7 @@
 *.so
 *.dylib
 storydb
+sqlite.db
 
 # folders
 .vscode/
