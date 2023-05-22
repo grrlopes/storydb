@@ -3,16 +3,21 @@ package ui
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	TitleStyle = func() lipgloss.Style {
+	view     = lipgloss.NewStyle()
+	content  = lipgloss.NewStyle()
+	winSize = lipgloss.NewStyle().
+			Margin(1, 2)
+
+	titleStyle = func() lipgloss.Style {
 		b := lipgloss.RoundedBorder()
 		b.Right = "├"
 		return lipgloss.NewStyle().BorderStyle(b).Padding(0, 1)
 	}()
 
-	InfoStyle = func() lipgloss.Style {
+	infoStyle = func() lipgloss.Style {
 		b := lipgloss.RoundedBorder()
 		b.Left = "┤"
-		return TitleStyle.Copy().BorderStyle(b)
+		return titleStyle.Copy().BorderStyle(b)
 	}()
 )
 

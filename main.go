@@ -3,95 +3,87 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
-	"github.com/charmbracelet/bubbles/viewport"
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/grrlopes/storydb/entity"
+	"github.com/grrlopes/storydb/repositories"
+	"github.com/grrlopes/storydb/repositories/sqlite"
 	"github.com/grrlopes/storydb/ui"
+	"github.com/grrlopes/storydb/usecase/listall"
+	"github.com/grrlopes/storydb/usecase/schema"
 )
 
-const useHighPerformanceRenderer = false
-
 var (
-	command          = entity.NewCmd()
-	home    ui.IHome = ui.NewHome(command)
+	repository     repositories.ISqliteRepository = sqlite.NewSQLiteRepository()
+	usecaseMigrate schema.InputBoundary           = schema.NewMigrate(repository)
+	usecaseAll     listall.InputBoundary          = listall.NewListAll(repository)
 )
 
 type model struct {
-	home *entity.Command
+	home *ui.ModelHome
 }
 
-func (m *model) Init() tea.Cmd {
+func (m model) Init() tea.Cmd {
 	return nil
 }
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var (
-		cmd  tea.Cmd
-		cmds []tea.Cmd
-	)
-
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		if k := msg.String(); k == "ctrl+c" || k == "q" || k == "esc" {
-			return m, tea.Quit
-		}
-
-	case tea.WindowSizeMsg:
-		headerHeight := lipgloss.Height(home.HeaderView())
-		footerHeight := lipgloss.Height(home.FooterView())
-		verticalMarginHeight := headerHeight + footerHeight
-
-		if !m.home.Ready {
-			m.home.Viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
-			m.home.Viewport.YPosition = headerHeight
-			m.home.Viewport.HighPerformanceRendering = useHighPerformanceRenderer
-			m.home.Viewport.SetContent(m.home.Content)
-			m.home.Ready = true
-
-			m.home.Viewport.YPosition = headerHeight + 1
-		} else {
-			m.home.Viewport.Width = msg.Width
-			m.home.Viewport.Height = msg.Height - verticalMarginHeight
-		}
-		if useHighPerformanceRenderer {
-			cmds = append(cmds, viewport.Sync(m.home.Viewport))
-		}
-	}
-
-	home.WindowUpdate(m.home)
-
-	m.home.Viewport, cmd = m.home.Viewport.Update(msg)
-	cmds = append(cmds, cmd)
-	ui.NewHome(m.home)
-
-	return m, tea.Batch(cmds...)
+	var cmd tea.Cmd
+	m.home, cmd = m.home.Update(msg)
+	return m, cmd
 }
 
 func (m model) View() string {
-	if !m.home.Ready {
-		return "\n  Initializing..."
-	}
-	return fmt.Sprintf("%s\n%s\n%s", home.HeaderView(), m.home.Viewport.View(), home.FooterView())
+	return m.home.View()
 }
 
 func main() {
-	content, err := os.ReadFile("/tmp/text.md")
-	if err != nil {
-		fmt.Println("could not load file:", err)
-		os.Exit(1)
+	usecaseMigrate.Execute()
+	response, count, _ := usecaseAll.Execute(9)
+
+	items := []list.Item{}
+
+	for _, value := range response {
+		items = append(
+			items,
+			entity.NewListPanel{
+				SqliteCommand: entity.SqliteCommand(value),
+			},
+		)
 	}
-	m := model{home: entity.NewCmd()}
-	m.home.Content = string(content)
+
+	data := list.New(items, list.NewDefaultDelegate(), 0, 0)
+	data.SetShowPagination(false)
+
+	m := model{
+		home: ui.NewHome(
+			entity.Command{
+				Content:   data,
+				PageTotal: count,
+			},
+		),
+	}
+
 	p := tea.NewProgram(
 		&m,
 		tea.WithAltScreen(),
 		tea.WithMouseCellMotion(),
 	)
 
-	if _, err := p.Run(); err != nil {
+	_, err := p.Run()
+
+	if err != nil {
 		fmt.Println("could not run program:", err)
 		os.Exit(1)
 	}
+
+	cmd := exec.Command(
+		"xdotool",
+		"type",
+		m.home.GetSelected(),
+	)
+	_ = cmd.Run()
+	fmt.Printf("%+v\n", " --")
 }
