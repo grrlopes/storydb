@@ -13,6 +13,9 @@ builds:
       - linux
       - darwin
     main: main.go
+    ignore:
+      - goos: linux
+        goarch: 386
 changelog:
   filters:
     exclude:
