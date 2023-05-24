@@ -15,7 +15,7 @@ builds:
     main: main.go
     ignore:
       - goos: linux
-        goarch: 386
+        goarch: "386"
 changelog:
   filters:
     exclude:
