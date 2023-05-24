@@ -5,5 +5,7 @@ Through the capabilities of SQLite, you can effortlessly search, filter, and ana
 Furthermore, when you store the Bash history in SQLite and present it through a text-based user interface (UI), you can develop a user-friendly terminal application that facilitates interactive exploration and navigation of your command-line history.
 This integration with a text UI tool empowers you to browse and search your Bash history using interactive commands, enhancing the convenience of accessing and scrutinizing your previous commands.
 
+![](screenshots/storydb1.gif)
+
 ## Requirements
 - Go 1.20+
