@@ -85,5 +85,5 @@ func main() {
 		m.home.GetSelected(),
 	)
 	_ = cmd.Run()
-	fmt.Printf("%+v\n", " --")
+	fmt.Printf("%+v\n\n", " --")
 }

@@ -7,5 +7,7 @@ That project can store your bash history in SQLite offers a convenient and effec
 
 ![](screenshots/storydb1.gif)
 
+you can conveniently explore and interact with your command-line history, making it easier to recall past commands, analyze usage patterns, and improve your workflow in the terminal.
+
 ## Requirements
 - Go 1.20+
