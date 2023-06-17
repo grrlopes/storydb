@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/viewport"
@@ -49,28 +50,27 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if msg.String() == "ctrl+c" {
+		switch msg.String() {
+		case "ctrl+c", "q":
 			return &m, tea.Quit
-		}
-		if msg.String() == "enter" {
-			command := m.home.Content.SelectedItem().FilterValue()
-			m.home.Selected = command
-			return &m, cmd
-		}
-		if msg.String() == "right" || msg.String() == "l" {
-			data, _ := usecasePager.Execute(9, 18)
-			m.home.Content.SetItems(data)
-			m.home.Content.ResetFilter()
-			return &m, nil
+		case "up", "k":
+			if m.home.Cursor > 0 {
+				m.home.Cursor--
+			}
+		case "down", "j":
+			if m.home.Cursor < m.home.PageTotal-1 {
+				m.home.Cursor++
+			}
+		case "enter":
+			fmt.Print(m.home.Cursor + 1)
 		}
 	case tea.WindowSizeMsg:
-		h, v := winSize.GetFrameSize()
-		m.home.Content.SetSize(msg.Width-h, msg.Height-v)
 		m.home.Viewport.Width = msg.Width
 		m.home.Viewport.Height = msg.Height
+		m.home.Content = m.GetDataView()
 		m.home.Ready = true
 	}
-	m.home.Content, cmd = m.home.Content.Update(msg)
+	m.home.Content = m.GetDataView()
 	return &m, cmd
 }
 
@@ -86,7 +86,7 @@ func (m ModelHome) View() string {
 
 	return view.Render(
 		m.HeaderView()) + "\n" +
-		content.Render(m.home.Content.View()) + "\n" +
+		content.Render(m.GetDataView()) + "\n" +
 		view.Render(m.FooterView())
 }
 
@@ -95,7 +95,32 @@ func (m *ModelHome) GetSelected() string {
 }
 
 func (m *ModelHome) updatepagination() (int, int) {
-	start, end := m.home.Content.Paginator.GetSliceBounds(m.home.PageTotal)
-	m.home.Content.Paginator.SetTotalPages(m.home.PageTotal)
-	return start, end
+	return 1, 1
+}
+
+func (m *ModelHome) GetDataView() string {
+	data, _ := usecasePager.Execute(36, 0)
+	m.home.PageTotal = len(data)
+	var (
+		result []string
+		maxLen = m.home.Viewport.Width
+	)
+
+	for i, v := range data {
+		if m.home.Cursor == i {
+			v.Desc = SelecRow.Render(v.Desc)
+			v.EnTitle = SelecRow.Render(v.EnTitle)
+		}
+
+		if len(v.EnTitle) > maxLen {
+			title := ShrinkMiddle(v.EnTitle, maxLen)
+			v.EnTitle = title
+		}
+
+		result = append(result, fmt.Sprintf("\n%s", v.EnTitle))
+	}
+
+	rowData := strings.Trim(fmt.Sprintf("%s", result), "[]")
+
+	return rowData
 }
