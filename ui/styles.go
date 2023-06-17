@@ -3,10 +3,10 @@ package ui
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	view     = lipgloss.NewStyle()
-	content  = lipgloss.NewStyle()
+	view    = lipgloss.NewStyle()
+	content = lipgloss.NewStyle()
 	winSize = lipgloss.NewStyle().
-			Margin(1, 2)
+		Margin(1, 2)
 
 	titleStyle = func() lipgloss.Style {
 		b := lipgloss.RoundedBorder()
@@ -19,6 +19,11 @@ var (
 		b.Left = "┤"
 		return titleStyle.Copy().BorderStyle(b)
 	}()
+
+	SelecRow = func() lipgloss.Style {
+		b := view.Background(lipgloss.Color("#00B377"))
+		return b
+	}()
 )
 
 func Max(a, b int) int {
@@ -26,4 +31,15 @@ func Max(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func ShrinkMiddle(text string, maxLen int) string {
+	var style = "..."
+
+	halfLen := (maxLen - len(style)) / 2
+
+	start := text[:halfLen]
+	end := text[len(text)-halfLen:]
+
+	return start + style + end
 }

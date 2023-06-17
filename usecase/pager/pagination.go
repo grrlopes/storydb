@@ -3,13 +3,12 @@ package pager
 import (
 	"log"
 
-	"github.com/charmbracelet/bubbles/list"
 	"github.com/grrlopes/storydb/entity"
 	"github.com/grrlopes/storydb/repositories"
 )
 
 type InputBoundary interface {
-	Execute(int, int) ([]list.Item, error)
+	Execute(int, int) ([]entity.SqliteCommand, error)
 }
 
 type execute struct {
@@ -22,9 +21,9 @@ func NewPager(repo repositories.ISqliteRepository) InputBoundary {
 	}
 }
 
-func (e execute) Execute(limit int, offset int) ([]list.Item, error) {
+func (e execute) Execute(limit int, offset int) ([]entity.SqliteCommand, error) {
 	result, err := e.repository.Pagination(limit, offset)
-	items := []list.Item{}
+	items := []entity.SqliteCommand{}
 
 	if err != nil {
 		log.Fatal("Pager:", err)
@@ -33,9 +32,7 @@ func (e execute) Execute(limit int, offset int) ([]list.Item, error) {
 	for _, value := range result {
 		items = append(
 			items,
-			entity.NewListPanel{
-				SqliteCommand: entity.SqliteCommand(value),
-			},
+			entity.SqliteCommand(value),
 		)
 	}
 
