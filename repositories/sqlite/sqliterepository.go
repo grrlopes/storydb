@@ -83,3 +83,14 @@ func (sql *SQLiteRepository) Pagination(limit int, offset int) ([]repositories.S
 
 	return data, nil
 }
+
+func (sql *SQLiteRepository) Count() (int, error) {
+	var count int
+
+	err := sql.db.QueryRow("SELECT COUNT(*) FROM command").Scan(&count)
+	if err != nil {
+		return count, err
+	}
+
+	return count, err
+}

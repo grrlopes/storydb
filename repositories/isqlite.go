@@ -8,4 +8,5 @@ type ISqliteRepository interface {
 	Migrate() error
 	All(int) ([]SqliteCmd, int, error)
 	Pagination(int, int) ([]SqliteCmd, error)
+	Count() (int, error)
 }
