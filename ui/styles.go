@@ -3,10 +3,7 @@ package ui
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	view    = lipgloss.NewStyle()
-	content = lipgloss.NewStyle()
-	winSize = lipgloss.NewStyle().
-		Margin(1, 2)
+	view = lipgloss.NewStyle()
 
 	titleStyle = func() lipgloss.Style {
 		b := lipgloss.RoundedBorder()
@@ -33,7 +30,7 @@ func Max(a, b int) int {
 	return b
 }
 
-func ShrinkMiddle(text string, maxLen int) string {
+func ShrinkWordMiddle(text string, maxLen int) string {
 	var style = "..."
 
 	halfLen := (maxLen - len(style)) / 2
