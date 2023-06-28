@@ -81,12 +81,12 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		}
 	case tea.WindowSizeMsg:
 		m.home.Viewport.Width = msg.Width
-		m.home.Viewport.Height = msg.Height
-		m.home.Content = m.GetDataView()
+		m.home.Viewport.Height = msg.Height - 6
+		m.home.Viewport.SetContent(m.GetDataView())
 		m.home.Ready = true
 	}
 	*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
-	m.home.Content = m.GetDataView()
+	m.home.Viewport.SetContent(m.GetDataView())
 	return &m, cmd
 }
 
@@ -102,8 +102,8 @@ func (m ModelHome) View() string {
 
 	return view.Render(
 		m.HeaderView()) + "\n" +
-		content.Render(m.GetDataView()) + "\n" +
-		view.Render(m.FooterView()) + "\n" +
+		content.Render(m.home.Viewport.View()) + "\n" +
+		m.FooterView() + "\n" +
 		m.paginationView()
 }
 
@@ -116,7 +116,7 @@ func (m *ModelHome) updatepagination() (int, int) {
 }
 
 func (m *ModelHome) GetDataView() string {
-	data, _ := usecasePager.Execute(m.home.Viewport.Height, 0)
+	data, _ := usecasePager.Execute((m.home.Viewport.Height - 1), 0)
 	m.home.PageTotal = len(data)
 	var (
 		result []string
@@ -147,8 +147,4 @@ func (m *ModelHome) paginationView() string {
 	b.WriteString("  " + m.home.Pagination.View())
 	b.WriteString("\n\n  h/l ←/→ page • q: quit\n")
 	return b.String()
-}
-
-func (m *ModelHome) getCount() int {
-	return 0
 }
