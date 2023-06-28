@@ -14,6 +14,6 @@ type Command struct {
 	Start      *int
 	End        *int
 	PageTotal  int
-	Pagination paginator.Model
+	Pagination *paginator.Model
 	Count      int
 }

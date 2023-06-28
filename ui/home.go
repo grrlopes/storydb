@@ -38,7 +38,7 @@ func NewHome(m entity.Command) *ModelHome {
 			Selected:   "",
 			Viewport:   viewport.Model{},
 			PageTotal:  m.PageTotal,
-			Pagination: p,
+			Pagination: &p,
 			Count:      count,
 		},
 	}
@@ -75,6 +75,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			m.home.Cursor = m.home.PageTotal - 1
 		case "ctrl+u":
 			m.home.Cursor = 0
+		case "l", "right":
 		case "enter":
 			fmt.Print(m.home.Cursor + 1)
 		}
@@ -84,6 +85,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Content = m.GetDataView()
 		m.home.Ready = true
 	}
+	*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
 	m.home.Content = m.GetDataView()
 	return &m, cmd
 }
@@ -114,7 +116,7 @@ func (m *ModelHome) updatepagination() (int, int) {
 }
 
 func (m *ModelHome) GetDataView() string {
-	data, _ := usecasePager.Execute(36, 0)
+	data, _ := usecasePager.Execute(m.home.Viewport.Height, 0)
 	m.home.PageTotal = len(data)
 	var (
 		result []string
@@ -145,4 +147,8 @@ func (m *ModelHome) paginationView() string {
 	b.WriteString("  " + m.home.Pagination.View())
 	b.WriteString("\n\n  h/l ←/→ page • q: quit\n")
 	return b.String()
+}
+
+func (m *ModelHome) getCount() int {
+	return 0
 }

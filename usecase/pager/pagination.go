@@ -8,6 +8,7 @@ import (
 )
 
 type InputBoundary interface {
+	// It gets integer paramaters limit and offset
 	Execute(int, int) ([]entity.SqliteCommand, error)
 }
 
