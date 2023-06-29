@@ -65,10 +65,12 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			return &m, tea.Quit
 		case "up", "k":
 			if m.home.Cursor > 0 {
+				m.home.Content = "arrow"
 				m.home.Cursor--
 			}
 		case "down", "j":
 			if m.home.Cursor < m.home.PageTotal-1 {
+				m.home.Content = "arrow"
 				m.home.Cursor++
 			}
 		case "ctrl+g":
@@ -80,6 +82,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			fmt.Print(m.home.Cursor + 1)
 		}
 	case tea.WindowSizeMsg:
+		m.home.Content = "window"
 		m.home.Viewport.Width = msg.Width
 		m.home.Viewport.Height = msg.Height - 6
 		m.home.Viewport.SetContent(m.GetDataView())
@@ -116,6 +119,11 @@ func (m *ModelHome) updatepagination() (int, int) {
 }
 
 func (m *ModelHome) GetDataView() string {
+	var (
+		pagey   = m.home.PageTotal - 1
+		selecty = m.home.Content
+	)
+
 	data, _ := usecasePager.Execute((m.home.Viewport.Height - 1), 0)
 	m.home.PageTotal = len(data)
 	var (
@@ -124,8 +132,11 @@ func (m *ModelHome) GetDataView() string {
 	)
 
 	for i, v := range data {
-		if m.home.Cursor == i {
-			v.Desc = SelecRow.Render(v.Desc)
+		if m.home.Cursor == i && selecty == "arrow" {
+			v.EnTitle = SelecRow.Render(v.EnTitle)
+		}
+
+		if pagey == i && selecty == "window" {
 			v.EnTitle = SelecRow.Render(v.EnTitle)
 		}
 
