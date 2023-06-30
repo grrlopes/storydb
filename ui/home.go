@@ -28,7 +28,7 @@ type ModelHome struct {
 func NewHome(m entity.Command) *ModelHome {
 	count := usecaseCount.Execute()
 	p := paginator.New()
-	p.PerPage = 10
+	p.PerPage = 2
 	p.SetTotalPages(count)
 
 	home := ModelHome{
@@ -89,6 +89,10 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Ready = true
 	}
 	*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
+	start, end := m.updatepagination()
+	m.home.Start = start
+	m.home.End = end
+
 	m.home.Viewport.SetContent(m.GetDataView())
 	return &m, cmd
 }
@@ -99,9 +103,6 @@ func (m ModelHome) View() string {
 	if !m.home.Ready {
 		return "\n  Loading..."
 	}
-	start, end := m.updatepagination()
-	m.home.Start = &start
-	m.home.End = &end
 
 	return view.Render(
 		m.HeaderView()) + "\n" +
@@ -115,7 +116,8 @@ func (m *ModelHome) GetSelected() string {
 }
 
 func (m *ModelHome) updatepagination() (int, int) {
-	return 1, 1
+	start, end := m.home.Pagination.GetSliceBounds(m.home.Count)
+	return start, end
 }
 
 func (m *ModelHome) GetDataView() string {
@@ -124,7 +126,7 @@ func (m *ModelHome) GetDataView() string {
 		selecty = m.home.Content
 	)
 
-	data, _ := usecasePager.Execute((m.home.Viewport.Height - 1), 0)
+	data, _ := usecasePager.Execute((m.home.Viewport.Height - 1), m.home.Start)
 	m.home.PageTotal = len(data)
 	var (
 		result []string
