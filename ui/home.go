@@ -35,7 +35,6 @@ func NewHome(m *entity.Command) *ModelHome {
 		home: entity.Command{
 			Content:    m.Content,
 			Ready:      false,
-			Selected:   "",
 			Viewport:   viewport.Model{},
 			PageTotal:  m.PageTotal,
 			Pagination: &p,
@@ -78,7 +77,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		case "ctrl+u":
 			m.home.Cursor = 0
 		case "enter":
-			fmt.Print(m.home.Cursor + 1)
+			return &m, tea.Quit
 		}
 	case tea.WindowSizeMsg:
 		m.home.Content = "window"
@@ -134,6 +133,7 @@ func (m *ModelHome) GetDataView() string {
 
 	for i, v := range data {
 		if m.home.Cursor == i && selecty == "arrow" {
+			m.home.Selected = v.EnTitle
 			v.EnTitle = SelecRow.Render(v.EnTitle)
 		}
 

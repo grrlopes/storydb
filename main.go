@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/grrlopes/storydb/entity"
 	"github.com/grrlopes/storydb/repositories"
@@ -40,29 +39,9 @@ func (m model) View() string {
 }
 
 func main() {
-	usecaseMigrate.Execute()
-	response, count, _ := usecaseAll.Execute(9)
-
-	items := []list.Item{}
-
-	for _, value := range response {
-		items = append(
-			items,
-			entity.NewListPanel{
-				SqliteCommand: entity.SqliteCommand(value),
-			},
-		)
-	}
-
-	data := list.New(items, list.NewDefaultDelegate(), 0, 0)
-	data.SetShowPagination(false)
-
 	m := model{
 		home: ui.NewHome(
-			entity.Command{
-				Content:   data,
-				PageTotal: count,
-			},
+			&entity.Command{},
 		),
 	}
 
