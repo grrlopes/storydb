@@ -25,10 +25,10 @@ type ModelHome struct {
 	home entity.Command
 }
 
-func NewHome(m entity.Command) *ModelHome {
+func NewHome(m *entity.Command) *ModelHome {
 	count := usecaseCount.Execute()
 	p := paginator.New()
-	p.PerPage = 2
+	p.PerPage = 18
 	p.SetTotalPages(count)
 
 	home := ModelHome{
@@ -77,7 +77,6 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			m.home.Cursor = m.home.PageTotal - 1
 		case "ctrl+u":
 			m.home.Cursor = 0
-		case "l", "right":
 		case "enter":
 			fmt.Print(m.home.Cursor + 1)
 		}
@@ -126,7 +125,7 @@ func (m *ModelHome) GetDataView() string {
 		selecty = m.home.Content
 	)
 
-	data, _ := usecasePager.Execute((m.home.Viewport.Height - 1), m.home.Start)
+	data, _ := usecasePager.Execute(18, m.home.Start)
 	m.home.PageTotal = len(data)
 	var (
 		result []string
