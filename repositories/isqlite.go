@@ -9,4 +9,5 @@ type ISqliteRepository interface {
 	All(int) ([]SqliteCmd, int, error)
 	Pagination(int, int) ([]SqliteCmd, error)
 	Count() (int, error)
+	InsertParsed(string) (int64, error)
 }
