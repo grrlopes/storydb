@@ -10,15 +10,19 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/grrlopes/storydb/entity"
 	"github.com/grrlopes/storydb/repositories"
+	"github.com/grrlopes/storydb/repositories/fileparse"
 	"github.com/grrlopes/storydb/repositories/sqlite"
 	"github.com/grrlopes/storydb/usecase/count"
+	"github.com/grrlopes/storydb/usecase/fhistory"
 	"github.com/grrlopes/storydb/usecase/pager"
 )
 
 var (
-	repository   repositories.ISqliteRepository = sqlite.NewSQLiteRepository()
-	usecasePager pager.InputBoundary            = pager.NewPager(repository)
-	usecaseCount count.InputBoundary            = count.NewCount(repository)
+	repository     repositories.ISqliteRepository     = sqlite.NewSQLiteRepository()
+	frepository    repositories.IFileParsedRepository = fileparse.NewFparsedRepository()
+	usecasePager   pager.InputBoundary                = pager.NewPager(repository)
+	usecaseCount   count.InputBoundary                = count.NewCount(repository)
+	usecaseHistory fhistory.InputBoundary             = fhistory.NewFHistory(frepository, repository)
 )
 
 type ModelHome struct {
@@ -74,6 +78,8 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			}
 		case "ctrl+g":
 			m.home.Cursor = m.home.PageTotal - 1
+		case "s":
+      usecaseHistory.Execute()
 		case "ctrl+u":
 			m.home.Cursor = 0
 		case "enter":
