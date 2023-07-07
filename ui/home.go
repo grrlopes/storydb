@@ -60,36 +60,14 @@ func (m ModelHome) FooterView() string {
 	return lipgloss.JoinHorizontal(lipgloss.Center, line)
 }
 
-func (m ModelHome) update2(msg tea.Msg) (*ModelHome, tea.Cmd) {
-	var cmd tea.Cmd
-
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "left":
-			m.home.ActiveSyncScreen = true
-			m.home.Viewport.SetContent(ConfirmationView(m))
-			return &m, cmd
-		case "right":
-			m.home.ActiveSyncScreen = false
-			m.home.Viewport.SetContent(ConfirmationView(m))
-			return &m, cmd
-		case "enter":
-			m.home.StatusSyncScreen = false
-			m.home.Viewport.SetContent(m.GetDataView())
-			return &m, cmd
-		}
-	}
-	return &m, cmd
-}
-
 func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 	if m.home.StatusSyncScreen {
 		m.home.Ready = true
-		return m.update2(msg)
+    synced, cmd := syncUpdate(msg, m)
+		return synced, cmd
 	}
-	var cmd tea.Cmd
 
+	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -110,7 +88,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		case "s":
 			m.home.StatusSyncScreen = true
 			m.home.ActiveSyncScreen = true
-			m.home.Viewport.SetContent(ConfirmationView(m))
+			m.home.Viewport.SetContent(syncView(m))
 			return &m, cmd
 		case "ctrl+u":
 			m.home.Cursor = 0
@@ -135,7 +113,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 
 func (m ModelHome) View() string {
 	view := lipgloss.NewStyle()
-	content := lipgloss.NewStyle().Padding(1, 2, 1, 2)
+	content := lipgloss.NewStyle()
 	if !m.home.Ready {
 		return "\n  Loading..."
 	}
