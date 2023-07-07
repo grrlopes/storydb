@@ -2,11 +2,9 @@ package sqlite
 
 import (
 	"database/sql"
-	"errors"
 	"log"
 
 	"github.com/grrlopes/storydb/repositories"
-	"github.com/mattn/go-sqlite3"
 )
 
 type SQLiteRepository struct {
@@ -100,12 +98,6 @@ func (sql *SQLiteRepository) Count() (int, error) {
 func (sql SQLiteRepository) InsertParsed(data string) (int64, error) {
 	res, err := sql.db.Exec("INSERT INTO command(title, description) values(?, ?)", data, "--")
 	if err != nil {
-		var sqliteErr sqlite3.Error
-		if errors.As(err, &sqliteErr) {
-			if errors.Is(sqliteErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
-				return 0, err
-			}
-		}
 		return 0, err
 	}
 

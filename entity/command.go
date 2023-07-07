@@ -6,14 +6,16 @@ import (
 )
 
 type Command struct {
-	Content    string
-	Cursor     int
-	Ready      bool
-	Selected   string
-	Viewport   viewport.Model
-	Start      int
-	End        int
-	PageTotal  int
-	Pagination *paginator.Model
-	Count      int
+	Content      string
+	Cursor       int
+	Ready        bool
+	Selected     string
+	Viewport     viewport.Model
+	Start        int
+	End          int
+	PageTotal    int
+	Pagination   *paginator.Model
+	Count        int
+	ActiveSyncScreen bool
+	StatusSyncScreen bool
 }
