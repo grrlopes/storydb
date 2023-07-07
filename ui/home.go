@@ -37,12 +37,14 @@ func NewHome(m *entity.Command) *ModelHome {
 
 	home := ModelHome{
 		home: entity.Command{
-			Content:    m.Content,
-			Ready:      false,
-			Viewport:   viewport.Model{},
-			PageTotal:  m.PageTotal,
-			Pagination: &p,
-			Count:      count,
+			Content:          m.Content,
+			Ready:            false,
+			Viewport:         viewport.Model{},
+			PageTotal:        m.PageTotal,
+			Pagination:       &p,
+			Count:            count,
+			ActiveSyncScreen: false,
+			StatusSyncScreen: false,
 		},
 	}
 	return &home
@@ -58,7 +60,34 @@ func (m ModelHome) FooterView() string {
 	return lipgloss.JoinHorizontal(lipgloss.Center, line)
 }
 
+func (m ModelHome) update2(msg tea.Msg) (*ModelHome, tea.Cmd) {
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "left":
+			m.home.ActiveSyncScreen = true
+			m.home.Viewport.SetContent(ConfirmationView(m))
+			return &m, cmd
+		case "right":
+			m.home.ActiveSyncScreen = false
+			m.home.Viewport.SetContent(ConfirmationView(m))
+			return &m, cmd
+		case "enter":
+			m.home.StatusSyncScreen = false
+			m.home.Viewport.SetContent(m.GetDataView())
+			return &m, cmd
+		}
+	}
+	return &m, cmd
+}
+
 func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
+	if m.home.StatusSyncScreen {
+		m.home.Ready = true
+		return m.update2(msg)
+	}
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -79,7 +108,10 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		case "ctrl+g":
 			m.home.Cursor = m.home.PageTotal - 1
 		case "s":
-      usecaseHistory.Execute()
+			m.home.StatusSyncScreen = true
+			m.home.ActiveSyncScreen = true
+			m.home.Viewport.SetContent(ConfirmationView(m))
+			return &m, cmd
 		case "ctrl+u":
 			m.home.Cursor = 0
 		case "enter":
@@ -103,13 +135,12 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 
 func (m ModelHome) View() string {
 	view := lipgloss.NewStyle()
-	content := lipgloss.NewStyle()
+	content := lipgloss.NewStyle().Padding(1, 2, 1, 2)
 	if !m.home.Ready {
 		return "\n  Loading..."
 	}
 
-	return view.Render(
-		m.HeaderView()) + "\n" +
+	return view.Render(m.HeaderView()) + "\n" +
 		content.Render(m.home.Viewport.View()) + "\n" +
 		m.FooterView() + "\n" +
 		m.paginationView()
