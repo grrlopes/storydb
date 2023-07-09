@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/paginator"
+	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -34,6 +35,7 @@ func NewHome(m *entity.Command) *ModelHome {
 	p := paginator.New()
 	p.PerPage = 18
 	p.SetTotalPages(count)
+	pro := progress.New(progress.WithDefaultGradient())
 
 	home := ModelHome{
 		home: entity.Command{
@@ -45,6 +47,7 @@ func NewHome(m *entity.Command) *ModelHome {
 			Count:            count,
 			ActiveSyncScreen: false,
 			StatusSyncScreen: false,
+			ProgressSync:     pro,
 		},
 	}
 	return &home
@@ -63,7 +66,7 @@ func (m ModelHome) FooterView() string {
 func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 	if m.home.StatusSyncScreen {
 		m.home.Ready = true
-    synced, cmd := syncUpdate(msg, m)
+		synced, cmd := syncUpdate(msg, m)
 		return synced, cmd
 	}
 
@@ -88,7 +91,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		case "s":
 			m.home.StatusSyncScreen = true
 			m.home.ActiveSyncScreen = true
-			m.home.Viewport.SetContent(syncView(m))
+			m.home.Viewport.SetContent(syncView(&m))
 			return &m, cmd
 		case "ctrl+u":
 			m.home.Cursor = 0
