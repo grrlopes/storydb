@@ -2,14 +2,13 @@ package fhistory
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 
 	"github.com/grrlopes/storydb/repositories"
 )
 
 type InputBoundary interface {
-	Execute()
+	Execute() int
 }
 
 type execute struct {
@@ -24,16 +23,19 @@ func NewFHistory(frepo repositories.IFileParsedRepository, srepo repositories.IS
 	}
 }
 
-func (e execute) Execute() {
+func (e execute) Execute() int {
 	fresult := e.frepository.All()
+
 	scanner := bufio.NewScanner(fresult)
+	fcount := 0
 	for scanner.Scan() {
 		data := scanner.Text()
-		number, err := e.srepository.InsertParsed(data)
-		fmt.Println(number, err)
+		fcount += 1
+		e.srepository.InsertParsed(data)
 	}
-
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
+
+	return fcount
 }

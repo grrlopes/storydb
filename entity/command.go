@@ -17,6 +17,8 @@ type Command struct {
 	PageTotal        int
 	Pagination       *paginator.Model
 	Count            int
+	Fcount           int
+	Ftotal           int
 	ActiveSyncScreen bool
 	StatusSyncScreen bool
 	ProgressSync     progress.Model

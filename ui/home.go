@@ -64,7 +64,7 @@ func (m ModelHome) FooterView() string {
 }
 
 func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
-	if m.home.StatusSyncScreen {
+	if m.home.ActiveSyncScreen {
 		m.home.Ready = true
 		synced, cmd := syncUpdate(msg, m)
 		return synced, cmd
@@ -89,7 +89,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		case "ctrl+g":
 			m.home.Cursor = m.home.PageTotal - 1
 		case "s":
-			m.home.StatusSyncScreen = true
+			m.home.StatusSyncScreen = false
 			m.home.ActiveSyncScreen = true
 			m.home.Viewport.SetContent(syncView(&m))
 			return &m, cmd

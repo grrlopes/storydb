@@ -23,18 +23,24 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "left":
-			m.home.ActiveSyncScreen = true
+			m.home.StatusSyncScreen = true
 			m.home.Viewport.SetContent(syncView(&m))
-			return &m, syncTickCmd()
+			return &m, nil
 		case "right":
-			m.home.ActiveSyncScreen = false
+			m.home.StatusSyncScreen = false
 			m.home.Viewport.SetContent(syncView(&m))
 			return &m, nil
 		case "enter":
-			m.home.StatusSyncScreen = true
+			if !m.home.StatusSyncScreen && m.home.ActiveSyncScreen {
+				m.home.ActiveSyncScreen = false
+				m.home.ProgressSync = progress.NewModel(progress.WithDefaultGradient())
+				m.home.Viewport.SetContent(m.GetDataView())
+				return &m, nil
+			}
+			return &m, syncTickCmd()
 		case "q":
-			if m.home.StatusSyncScreen {
-        m.home.StatusSyncScreen = false
+			if m.home.ActiveSyncScreen {
+				m.home.ActiveSyncScreen = false
 				m.home.ProgressSync = progress.NewModel(progress.WithDefaultGradient())
 				m.home.Viewport.SetContent(m.GetDataView())
 				return &m, nil
@@ -52,10 +58,14 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 		if m.home.ProgressSync.Percent() == 1.0 {
 			return &m, nil
 		}
-		Percentage := (float64(3700) / float64(3876)) * 100
-		cmd := m.home.ProgressSync.SetPercent(Percentage)
+		Percentage := (float64(m.home.Fcount) / float64(111)) * 100
+		cmd := m.home.ProgressSync.SetPercent(float64(Percentage) / float64(100))
 		return &m, tea.Batch(syncTickCmd(), cmd)
 	case progress.FrameMsg:
+		fposition := usecaseHistory.Execute()
+		if fposition > 0 {
+			m.home.Fcount = fposition
+		}
 		progressModel, cmd := m.home.ProgressSync.Update(msg)
 		m.home.ProgressSync = progressModel.(progress.Model)
 		m.home.Viewport.SetContent(syncView(&m))
@@ -67,7 +77,7 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 func syncView(m *ModelHome) string {
 	var okButton, cancelButton string
 
-	if m.home.ActiveSyncScreen {
+	if m.home.StatusSyncScreen {
 		okButton = ActiveButtonStyle.Render("Yes")
 		cancelButton = ButtonStyle.Render("No, take me back")
 	} else {
