@@ -18,6 +18,5 @@ func OpenHist() (*os.File, error) {
 		os.Exit(1)
 	}
 
-
 	return data, err
 }
