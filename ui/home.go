@@ -15,15 +15,17 @@ import (
 	"github.com/grrlopes/storydb/repositories/sqlite"
 	"github.com/grrlopes/storydb/usecase/count"
 	"github.com/grrlopes/storydb/usecase/fhistory"
+	"github.com/grrlopes/storydb/usecase/fhistorytotal"
 	"github.com/grrlopes/storydb/usecase/pager"
 )
 
 var (
-	repository     repositories.ISqliteRepository     = sqlite.NewSQLiteRepository()
-	frepository    repositories.IFileParsedRepository = fileparse.NewFparsedRepository()
-	usecasePager   pager.InputBoundary                = pager.NewPager(repository)
-	usecaseCount   count.InputBoundary                = count.NewCount(repository)
-	usecaseHistory fhistory.InputBoundary             = fhistory.NewFHistory(frepository, repository)
+	repository          repositories.ISqliteRepository     = sqlite.NewSQLiteRepository()
+	frepository         repositories.IFileParsedRepository = fileparse.NewFparsedRepository()
+	usecasePager        pager.InputBoundary                = pager.NewPager(repository)
+	usecaseCount        count.InputBoundary                = count.NewCount(repository)
+	usecaseHistory      fhistory.InputBoundary             = fhistory.NewFHistory(frepository, repository)
+	usecaseHistoryTotal fhistorytotal.InputBoundary        = fhistorytotal.NewFHistoryTotal(frepository, repository)
 )
 
 type ModelHome struct {
@@ -32,6 +34,7 @@ type ModelHome struct {
 
 func NewHome(m *entity.Command) *ModelHome {
 	count := usecaseCount.Execute()
+	ftotal := usecaseHistoryTotal.Execute()
 	p := paginator.New()
 	p.PerPage = 18
 	p.SetTotalPages(count)
@@ -48,6 +51,7 @@ func NewHome(m *entity.Command) *ModelHome {
 			ActiveSyncScreen: false,
 			StatusSyncScreen: false,
 			ProgressSync:     pro,
+			Ftotal:           ftotal,
 		},
 	}
 	return &home

@@ -58,7 +58,7 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 		if m.home.ProgressSync.Percent() == 1.0 {
 			return &m, nil
 		}
-		Percentage := (float64(m.home.Fcount) / float64(111)) * 100
+		Percentage := (float64(m.home.Fcount) / float64(m.home.Ftotal)) * 100
 		cmd := m.home.ProgressSync.SetPercent(float64(Percentage) / float64(100))
 		return &m, tea.Batch(syncTickCmd(), cmd)
 	case progress.FrameMsg:
