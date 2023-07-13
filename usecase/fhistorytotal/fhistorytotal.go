@@ -24,12 +24,18 @@ func NewFHistoryTotal(frepo repositories.IFileParsedRepository, srepo repositori
 }
 
 func (e execute) Execute() int {
-	file, err := os.Open("~/.bash_history")
+	homedir, err := os.UserHomeDir()
 	if err != nil {
-		log.Println("Error to open file:", err)
+		log.Fatal("could not find the file:", err, "\n")
+		os.Exit(1)
 	}
 
-  defer file.Close()
+	file, err := os.Open(homedir + "/.bash_history")
+	if err != nil {
+		log.Println("could not load file:", err)
+	}
+
+	defer file.Close()
 
 	fcount := 0
 	prevByte := make([]byte, 1)
@@ -39,7 +45,7 @@ func (e execute) Execute() int {
 		_, err := file.Read(b)
 
 		if err != nil {
-			log.Println("Error to open file:", err)
+			log.Println("could not open file:", err)
 		}
 
 		if b[0] == '\n' && prevByte[0] != '\r' {

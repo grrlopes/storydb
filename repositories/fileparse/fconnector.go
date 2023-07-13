@@ -6,11 +6,18 @@ import (
 )
 
 func OpenHist() (*os.File, error) {
-	data, err := os.Open("~/.bash_history")
+	homedir, err := os.UserHomeDir()
 	if err != nil {
-		log.Fatal("could not load file:", err)
+		log.Fatal("could not find the file:", err, "\n")
 		os.Exit(1)
 	}
+
+	data, err := os.Open(homedir + "/.bash_history")
+	if err != nil {
+		log.Fatal("could not load file:", err, "\n")
+		os.Exit(1)
+	}
+
 
 	return data, err
 }
