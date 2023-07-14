@@ -14,6 +14,8 @@ const (
 	maxWidth = 80
 )
 
+var choiceEntered bool = false
+
 type tickMsg time.Time
 
 func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
@@ -31,18 +33,15 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 			m.home.Viewport.SetContent(syncView(&m))
 			return &m, nil
 		case "enter":
-			if !m.home.StatusSyncScreen && m.home.ActiveSyncScreen {
-				m.home.ActiveSyncScreen = false
-				m.home.ProgressSync = progress.NewModel(progress.WithDefaultGradient())
-				m.home.Viewport.SetContent(m.GetDataView())
-				return &m, nil
-			}
+			choiceEntered = true
+			m.home.StatusSyncScreen = false
 			return &m, syncTickCmd()
 		case "q":
 			if m.home.ActiveSyncScreen {
 				m.home.ActiveSyncScreen = false
 				m.home.ProgressSync = progress.NewModel(progress.WithDefaultGradient())
 				m.home.Viewport.SetContent(m.GetDataView())
+				choiceEntered = false
 				return &m, nil
 			}
 		}
@@ -77,9 +76,12 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 func syncView(m *ModelHome) string {
 	var okButton, cancelButton string
 
-	if m.home.StatusSyncScreen {
+	if m.home.StatusSyncScreen && !choiceEntered {
 		okButton = ActiveButtonStyle.Render("Yes")
 		cancelButton = ButtonStyle.Render("No, take me back")
+	} else if choiceEntered {
+		okButton = ButtonDisableStyle.Render("Yes")
+		cancelButton = ButtonDisableStyle.Render("No, take me back")
 	} else {
 		okButton = ButtonStyle.Render("Yes")
 		cancelButton = ActiveButtonStyle.Render("No, take me back")

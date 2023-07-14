@@ -3,9 +3,9 @@ package ui
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	view      = lipgloss.NewStyle()
-	BaseStyle = lipgloss.NewStyle()
-	SubtleStyle    = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
+	view        = lipgloss.NewStyle()
+	BaseStyle   = lipgloss.NewStyle()
+	SubtleStyle = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
 
 	titleStyle = func() lipgloss.Style {
 		b := lipgloss.RoundedBorder()
@@ -36,6 +36,13 @@ var (
 	ButtonStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#FFFFFF")).
 			Background(lipgloss.Color("#888B7E")).
+			Padding(0, 3).
+			MarginTop(1).
+			MarginRight(2)
+
+	ButtonDisableStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FFFFFF")).
+			Background(lipgloss.Color("#7a0609")).
 			Padding(0, 3).
 			MarginTop(1).
 			MarginRight(2)
