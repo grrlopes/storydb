@@ -2,6 +2,22 @@
 
 Important changes will be written here.
 
+## 0.2.0-alpha-1 - 14-07-2023
+
+### Fixed
+- Pagination is working properly based on history line
+- Selection btn at syncScreen dialog
+
+### Added
+- Dialog style btn
+- Auto create storydb folder
+- Path for store database at $HOME/.local/share/storydb
+
+### Changed
+- How the app load the .bash_history
+
+### Removed
+- SqliteErr constant from repository ``#0c40006``
 
 ## 0.2.0-alpha - 06-07-2023
 
