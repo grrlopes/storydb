@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 
+	"github.com/grrlopes/storydb/entity"
 	"github.com/grrlopes/storydb/repositories"
 )
 
@@ -107,4 +108,39 @@ func (sql SQLiteRepository) InsertParsed(data string) (int64, error) {
 	}
 
 	return id, err
+}
+
+func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entity.SqliteCommand, int, error) {
+	var count int
+
+	stmt, err := sql.db.Prepare("SELECT * FROM command WHERE title LIKE ? limit ? offset ?")
+	if err != nil {
+		return []entity.SqliteCommand{}, count, err
+	}
+
+	result, err := stmt.Query("%"+filter+"%", limit, skip)
+	if err != nil {
+		return []entity.SqliteCommand{}, count, err
+	}
+
+	defer result.Close()
+
+	err = sql.db.QueryRow("SELECT COUNT(*) FROM command WHERE Title LIKE ?", "%"+filter+"").Scan(&count)
+
+	var data []entity.SqliteCommand
+
+	for result.Next() {
+		var command entity.SqliteCommand
+		if err := result.Scan(
+			&command.ID,
+			&command.EnTitle,
+			&command.Desc,
+		); err != nil {
+			return []entity.SqliteCommand{}, count, err
+		}
+
+		data = append(data, command)
+	}
+
+	return data, count, nil
 }

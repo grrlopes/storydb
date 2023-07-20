@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/progress"
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -16,6 +17,7 @@ import (
 	"github.com/grrlopes/storydb/usecase/count"
 	"github.com/grrlopes/storydb/usecase/fhistory"
 	"github.com/grrlopes/storydb/usecase/fhistorytotal"
+	"github.com/grrlopes/storydb/usecase/finder"
 	"github.com/grrlopes/storydb/usecase/pager"
 )
 
@@ -26,6 +28,7 @@ var (
 	usecaseCount        count.InputBoundary                = count.NewCount(repository)
 	usecaseHistory      fhistory.InputBoundary             = fhistory.NewFHistory(frepository, repository)
 	usecaseHistoryTotal fhistorytotal.InputBoundary        = fhistorytotal.NewFHistoryTotal(frepository, repository)
+	usecaseFinder       finder.InputBoundary               = finder.NewFinder(repository)
 )
 
 type ModelHome struct {
@@ -39,6 +42,12 @@ func NewHome(m *entity.Command) *ModelHome {
 	p.PerPage = 18
 	p.SetTotalPages(count)
 	pro := progress.New(progress.WithDefaultGradient())
+	txt := textinput.New()
+	txt.Placeholder = "type"
+	txt.Focus()
+	txt.CharLimit = 156
+	txt.Width = 20
+	txt.Prompt = "Finder: "
 
 	home := ModelHome{
 		home: entity.Command{
@@ -47,11 +56,12 @@ func NewHome(m *entity.Command) *ModelHome {
 			Viewport:         viewport.Model{},
 			PageTotal:        m.PageTotal,
 			Pagination:       &p,
-			Count:            count,
+			Count:            &count,
 			ActiveSyncScreen: false,
 			StatusSyncScreen: false,
 			ProgressSync:     pro,
 			Ftotal:           ftotal,
+			Finder:           txt,
 		},
 	}
 	return &home
@@ -72,6 +82,12 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Ready = true
 		synced, cmd := syncUpdate(msg, m)
 		return synced, cmd
+	}
+
+	if m.home.ActiveFinderScreen {
+		m.home.Ready = true
+		finder, cmd := finderUpdate(msg, m)
+		return finder, cmd
 	}
 
 	var cmd tea.Cmd
@@ -101,6 +117,10 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			m.home.Cursor = 0
 		case "enter":
 			return &m, tea.Quit
+		case "/":
+			m.home.ActiveFinderScreen = true
+			m.home.Viewport.SetContent(finderView(&m))
+			return &m, cmd
 		}
 	case tea.WindowSizeMsg:
 		m.home.Content = "window"
@@ -136,7 +156,7 @@ func (m *ModelHome) GetSelected() string {
 }
 
 func (m *ModelHome) updatepagination() (int, int) {
-	start, end := m.home.Pagination.GetSliceBounds(m.home.Count)
+	start, end := m.home.Pagination.GetSliceBounds(*m.home.Count)
 	return start, end
 }
 
@@ -146,14 +166,14 @@ func (m *ModelHome) GetDataView() string {
 		selecty = m.home.Content
 	)
 
-	data, _ := usecasePager.Execute(18, m.home.Start)
-	m.home.PageTotal = len(data)
+	m.home.Store, _ = usecasePager.Execute(18, m.home.Start)
+	m.home.PageTotal = len(m.home.Store)
 	var (
 		result []string
 		maxLen = m.home.Viewport.Width
 	)
 
-	for i, v := range data {
+	for i, v := range m.home.Store {
 		if m.home.Cursor == i && selecty == "arrow" {
 			m.home.Selected = v.EnTitle
 			v.EnTitle = SelecRow.Render(v.EnTitle)
