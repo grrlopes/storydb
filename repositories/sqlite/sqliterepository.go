@@ -125,7 +125,7 @@ func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entit
 
 	defer result.Close()
 
-	err = sql.db.QueryRow("SELECT COUNT(*) FROM command WHERE Title LIKE ?", "%"+filter+"").Scan(&count)
+	err = sql.db.QueryRow("SELECT COUNT(*) FROM command WHERE Title LIKE ?", "%"+filter+"%").Scan(&count)
 
 	var data []entity.SqliteCommand
 
