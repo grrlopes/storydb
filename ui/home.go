@@ -44,7 +44,6 @@ func NewHome(m *entity.Command) *ModelHome {
 	pro := progress.New(progress.WithDefaultGradient())
 	txt := textinput.New()
 	txt.Placeholder = "type"
-	txt.Focus()
 	txt.CharLimit = 156
 	txt.Width = 20
 	txt.Prompt = "Finder: "
@@ -84,43 +83,52 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		return synced, cmd
 	}
 
-	if m.home.ActiveFinderScreen {
-		m.home.Ready = true
-		finder, cmd := finderUpdate(msg, m)
-		return finder, cmd
-	}
+	// if m.home.ActiveFinderScreen {
+	// 	m.home.Ready = true
+	// 	finder, cmd := finderUpdate(msg, m)
+	// 	return finder, cmd
+	// }
 
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "q":
-			return &m, tea.Quit
-		case "up", "k":
-			if m.home.Cursor > 0 {
-				m.home.Content = "arrow"
-				m.home.Cursor--
+		if m.home.Finder.Focused() {
+			if msg.String() == "ctrl+c" {
+				m.home.Finder.Blur()
 			}
-		case "down", "j":
-			if m.home.Cursor < m.home.PageTotal-1 {
-				m.home.Content = "arrow"
-				m.home.Cursor++
+			m.home.Store, *m.home.Count = finderCmd(m.home.Finder.Value(), 18, m.home.Start)
+			start, end := m.updatepagination()
+			m.home.Start = start
+			m.home.End = end
+			m.home.Finder, cmd = m.home.Finder.Update(msg)
+		} else {
+			switch msg.String() {
+			case "ctrl+c", "q":
+				return &m, tea.Quit
+			case "up", "k":
+				if m.home.Cursor > 0 {
+					m.home.Content = "arrow"
+					m.home.Cursor--
+				}
+			case "down", "j":
+				if m.home.Cursor < m.home.PageTotal-1 {
+					m.home.Content = "arrow"
+					m.home.Cursor++
+				}
+			case "ctrl+g":
+				m.home.Cursor = m.home.PageTotal - 1
+			case "s":
+				m.home.StatusSyncScreen = false
+				m.home.ActiveSyncScreen = true
+				m.home.Viewport.SetContent(syncView(&m))
+				return &m, cmd
+			case "ctrl+u":
+				m.home.Cursor = 0
+			case "enter":
+				return &m, tea.Quit
+			case "/":
+				m.home.Finder.Focus()
 			}
-		case "ctrl+g":
-			m.home.Cursor = m.home.PageTotal - 1
-		case "s":
-			m.home.StatusSyncScreen = false
-			m.home.ActiveSyncScreen = true
-			m.home.Viewport.SetContent(syncView(&m))
-			return &m, cmd
-		case "ctrl+u":
-			m.home.Cursor = 0
-		case "enter":
-			return &m, tea.Quit
-		case "/":
-			m.home.ActiveFinderScreen = true
-			m.home.Viewport.SetContent(finderView(&m))
-			return &m, cmd
 		}
 	case tea.WindowSizeMsg:
 		m.home.Content = "window"
@@ -129,10 +137,13 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Viewport.SetContent(m.GetDataView())
 		m.home.Ready = true
 	}
+
 	*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
-	start, end := m.updatepagination()
-	m.home.Start = start
-	m.home.End = end
+	if !m.home.Finder.Focused() {
+		start, end := m.updatepagination()
+		m.home.Start = start
+		m.home.End = end
+	}
 
 	m.home.Viewport.SetContent(m.GetDataView())
 	return &m, cmd
@@ -145,7 +156,7 @@ func (m ModelHome) View() string {
 		return "\n  Loading..."
 	}
 
-	return view.Render(m.HeaderView()) + "\n" +
+	return view.Render(m.HeaderView()) + "\n" + m.home.Finder.View() +
 		content.Render(m.home.Viewport.View()) + "\n" +
 		m.FooterView() + "\n" +
 		m.paginationView()
@@ -166,8 +177,11 @@ func (m *ModelHome) GetDataView() string {
 		selecty = m.home.Content
 	)
 
-	m.home.Store, _ = usecasePager.Execute(18, m.home.Start)
+	if !m.home.Finder.Focused() {
+		m.home.Store, _ = usecasePager.Execute(18, m.home.Start)
+	}
 	m.home.PageTotal = len(m.home.Store)
+	m.home.Pagination.SetTotalPages(*m.home.Count)
 	var (
 		result []string
 		maxLen = m.home.Viewport.Width

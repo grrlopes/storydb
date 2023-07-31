@@ -6,7 +6,13 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/grrlopes/storydb/entity"
 )
+
+func finderCmd(filter string, limit int, offset int ) ([]entity.SqliteCommand, int) {
+	data, total, _ := usecaseFinder.Execute(filter, limit, offset)
+	return data, total
+}
 
 func finderUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 	var cmd tea.Cmd
