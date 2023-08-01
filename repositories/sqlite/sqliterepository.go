@@ -144,3 +144,11 @@ func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entit
 
 	return data, count, nil
 }
+
+func (sql *SQLiteRepository) SearchCount(filter string) (int, error) {
+	var count int
+
+	sql.db.QueryRow("SELECT COUNT(*) FROM command WHERE Title LIKE ?", "%"+filter+"%").Scan(&count)
+
+	return count, nil
+}

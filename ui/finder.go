@@ -9,9 +9,14 @@ import (
 	"github.com/grrlopes/storydb/entity"
 )
 
-func finderCmd(filter string, limit int, offset int ) ([]entity.SqliteCommand, int) {
+func finderCmd(filter string, limit int, offset int) ([]entity.SqliteCommand, int) {
 	data, total, _ := usecaseFinder.Execute(filter, limit, offset)
 	return data, total
+}
+
+func finderCount(filter string) int {
+	count := usecaseFinderCount.Execute(filter)
+	return count
 }
 
 func finderUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {

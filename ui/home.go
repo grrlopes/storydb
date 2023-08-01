@@ -18,6 +18,7 @@ import (
 	"github.com/grrlopes/storydb/usecase/fhistory"
 	"github.com/grrlopes/storydb/usecase/fhistorytotal"
 	"github.com/grrlopes/storydb/usecase/finder"
+	findercount "github.com/grrlopes/storydb/usecase/finderCount"
 	"github.com/grrlopes/storydb/usecase/pager"
 )
 
@@ -29,6 +30,7 @@ var (
 	usecaseHistory      fhistory.InputBoundary             = fhistory.NewFHistory(frepository, repository)
 	usecaseHistoryTotal fhistorytotal.InputBoundary        = fhistorytotal.NewFHistoryTotal(frepository, repository)
 	usecaseFinder       finder.InputBoundary               = finder.NewFinder(repository)
+	usecaseFinderCount  findercount.InputBoundary          = findercount.NewFinderCount(repository)
 )
 
 type ModelHome struct {
@@ -39,13 +41,13 @@ func NewHome(m *entity.Command) *ModelHome {
 	count := usecaseCount.Execute()
 	ftotal := usecaseHistoryTotal.Execute()
 	p := paginator.New()
-	p.PerPage = 18
+	p.PerPage = 20
 	p.SetTotalPages(count)
 	pro := progress.New(progress.WithDefaultGradient())
 	txt := textinput.New()
 	txt.Placeholder = "type"
 	txt.CharLimit = 156
-	txt.Width = 20
+	txt.Width = 50
 	txt.Prompt = "Finder: "
 
 	home := ModelHome{
@@ -83,23 +85,33 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		return synced, cmd
 	}
 
-	// if m.home.ActiveFinderScreen {
-	// 	m.home.Ready = true
-	// 	finder, cmd := finderUpdate(msg, m)
-	// 	return finder, cmd
-	// }
-
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if m.home.Finder.Focused() {
+			switch msg.String() {
+			case "up", "k":
+				if m.home.Cursor > 0 {
+					m.home.Content = "arrow"
+					m.home.Cursor--
+				}
+			case "down", "j":
+				if m.home.Cursor < m.home.PageTotal-1 {
+					m.home.Content = "arrow"
+					m.home.Cursor++
+				}
+			}
 			if msg.String() == "ctrl+c" {
+				m.home.Finder.SetValue("")
 				m.home.Finder.Blur()
 			}
-			m.home.Store, *m.home.Count = finderCmd(m.home.Finder.Value(), 18, m.home.Start)
+
+			*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
+			*m.home.Count = finderCount(m.home.Finder.Value())
 			start, end := m.updatepagination()
 			m.home.Start = start
 			m.home.End = end
+			m.home.Store, _ = finderCmd(m.home.Finder.Value(), 20, m.home.Start)
 			m.home.Finder, cmd = m.home.Finder.Update(msg)
 		} else {
 			switch msg.String() {
@@ -138,8 +150,8 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Ready = true
 	}
 
-	*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
 	if !m.home.Finder.Focused() {
+		*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
 		start, end := m.updatepagination()
 		m.home.Start = start
 		m.home.End = end
@@ -178,9 +190,9 @@ func (m *ModelHome) GetDataView() string {
 	)
 
 	if !m.home.Finder.Focused() {
-		m.home.Store, _ = usecasePager.Execute(18, m.home.Start)
+		m.home.Store, _ = usecasePager.Execute(20, m.home.Start)
+		m.home.PageTotal = len(m.home.Store)
 	}
-	m.home.PageTotal = len(m.home.Store)
 	m.home.Pagination.SetTotalPages(*m.home.Count)
 	var (
 		result []string
