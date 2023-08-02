@@ -41,7 +41,6 @@ func NewHome(m *entity.Command) *ModelHome {
 	count := usecaseCount.Execute()
 	ftotal := usecaseHistoryTotal.Execute()
 	p := paginator.New()
-	p.PerPage = 20
 	p.SetTotalPages(count)
 	pro := progress.New(progress.WithDefaultGradient())
 	txt := textinput.New()
@@ -100,18 +99,19 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 					m.home.Content = "arrow"
 					m.home.Cursor++
 				}
+			case "enter":
+				return &m, tea.Quit
 			}
 			if msg.String() == "ctrl+c" {
 				m.home.Finder.SetValue("")
 				m.home.Finder.Blur()
 			}
-
 			*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
 			*m.home.Count = finderCount(m.home.Finder.Value())
 			start, end := m.updatepagination()
 			m.home.Start = start
 			m.home.End = end
-			m.home.Store, _ = finderCmd(m.home.Finder.Value(), 20, m.home.Start)
+			m.home.Store, _ = finderCmd(m.home.Finder.Value(), m.home.Viewport.Height-2, m.home.Start)
 			m.home.Finder, cmd = m.home.Finder.Update(msg)
 		} else {
 			switch msg.String() {
@@ -146,6 +146,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Content = "window"
 		m.home.Viewport.Width = msg.Width
 		m.home.Viewport.Height = msg.Height - 6
+		m.home.Pagination.PerPage = msg.Height - 2
 		m.home.Viewport.SetContent(m.GetDataView())
 		m.home.Ready = true
 	}
@@ -167,8 +168,15 @@ func (m ModelHome) View() string {
 	if !m.home.Ready {
 		return "\n  Loading..."
 	}
+	if m.home.Finder.Focused() {
+		return view.Render(m.HeaderView()) + "\n" +
+			m.home.Finder.View() +
+			content.Render(m.home.Viewport.View()) + "\n" +
+			m.FooterView() + "\n" +
+			m.paginationView()
 
-	return view.Render(m.HeaderView()) + "\n" + m.home.Finder.View() +
+	}
+	return view.Render(m.HeaderView()) + "\n" +
 		content.Render(m.home.Viewport.View()) + "\n" +
 		m.FooterView() + "\n" +
 		m.paginationView()
@@ -187,17 +195,15 @@ func (m *ModelHome) GetDataView() string {
 	var (
 		pagey   = m.home.PageTotal - 1
 		selecty = m.home.Content
+		maxLen  = m.home.Viewport.Width
+		result  []string
 	)
 
 	if !m.home.Finder.Focused() {
-		m.home.Store, _ = usecasePager.Execute(20, m.home.Start)
+		m.home.Store, _ = usecasePager.Execute(m.home.Viewport.Height-2, m.home.Start)
 		m.home.PageTotal = len(m.home.Store)
 	}
 	m.home.Pagination.SetTotalPages(*m.home.Count)
-	var (
-		result []string
-		maxLen = m.home.Viewport.Width
-	)
 
 	for i, v := range m.home.Store {
 		if m.home.Cursor == i && selecty == "arrow" {
