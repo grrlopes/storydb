@@ -78,13 +78,17 @@ func (m ModelHome) FooterView() string {
 }
 
 func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
+	var (
+		cmd  tea.Cmd
+		cmds []tea.Cmd
+	)
+
 	if m.home.ActiveSyncScreen {
 		m.home.Ready = true
 		synced, cmd := syncUpdate(msg, m)
 		return synced, cmd
 	}
 
-	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if m.home.Finder.Focused() {
@@ -103,16 +107,16 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 				return &m, tea.Quit
 			}
 			if msg.String() == "ctrl+c" {
-				m.home.Finder.SetValue("")
+				m.home.Finder.Reset()
 				m.home.Finder.Blur()
 			}
 			*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
+			cmds = append(cmds, cmd)
 			*m.home.Count = finderCount(m.home.Finder.Value())
-			start, end := m.updatepagination()
-			m.home.Start = start
-			m.home.End = end
+			m.home.Start, m.home.End = m.updatepagination()
 			m.home.Store, _ = finderCmd(m.home.Finder.Value(), m.home.Viewport.Height-2, m.home.Start)
 			m.home.Finder, cmd = m.home.Finder.Update(msg)
+			cmds = append(cmds, cmd)
 		} else {
 			switch msg.String() {
 			case "ctrl+c", "q":
@@ -153,13 +157,14 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 
 	if !m.home.Finder.Focused() {
 		*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
+		cmds = append(cmds, cmd)
 		start, end := m.updatepagination()
 		m.home.Start = start
 		m.home.End = end
 	}
 
 	m.home.Viewport.SetContent(m.GetDataView())
-	return &m, cmd
+	return &m, tea.Batch(cmds...)
 }
 
 func (m ModelHome) View() string {
