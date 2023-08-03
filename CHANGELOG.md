@@ -2,6 +2,16 @@
 
 Important changes will be written here.
 
+## 0.3.0-alpha-0 - 03-08-2023
+
+### Fixed
+- Responsiveness is properly working.
+- Finder search is being hidden.
+
+### Added
+- Sql "like" into search finder repository.
+- Search finder count repository
+
 ## 0.2.0-alpha-1 - 14-07-2023
 
 ### Fixed
