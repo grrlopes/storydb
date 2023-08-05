@@ -61,7 +61,7 @@ func main() {
 	}
 
 	env := os.Getenv("storydb")
-	if env != "" {
+	if env == "" {
 		log.Fatalf("%s %s", "Error", helper.ErrEnvFailed)
 	}
 
