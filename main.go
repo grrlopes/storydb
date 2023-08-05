@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
-	"os/exec"
+	"syscall"
+	"unsafe"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/grrlopes/storydb/entity"
+	"github.com/grrlopes/storydb/helper"
 	"github.com/grrlopes/storydb/repositories"
 	"github.com/grrlopes/storydb/repositories/sqlite"
 	"github.com/grrlopes/storydb/ui"
@@ -55,14 +58,26 @@ func main() {
 
 	if err != nil {
 		fmt.Println("could not run program:", err)
+	}
+
+	env := os.Getenv("storydb")
+	if env != "" {
+		log.Fatalf("%s %s", "Error", helper.ErrEnvFailed)
+	}
+
+	fd, err := syscall.Open(env, syscall.O_RDWR, 0)
+	if err != nil {
+		fmt.Println("Error opening DEVICE:", err)
 		os.Exit(1)
 	}
 
-	cmd := exec.Command(
-		"xdotool",
-		"type",
-		m.home.GetSelected(),
-	)
-	_ = cmd.Run()
-	fmt.Printf("%+v\n\n", " --")
+	defer syscall.Close(fd)
+
+	cmd := m.home.GetSelected()
+	for i := 0; i < len(cmd); i++ {
+		char := cmd[i]
+		b := []byte{char}
+		syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), syscall.TIOCSTI, uintptr(unsafe.Pointer(&b[0])))
+	}
+	fmt.Printf("%+v\n\n", "---")
 }

@@ -144,6 +144,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 				return &m, tea.Quit
 			case "/":
 				m.home.Finder.Focus()
+        m.home.Pagination.Page = 0
 			}
 		}
 	case tea.WindowSizeMsg:
