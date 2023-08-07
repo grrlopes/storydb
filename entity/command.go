@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 )
 
-type Command struct {
+type CmdModel struct {
 	Content            string
 	Cursor             int
 	Ready              bool
@@ -26,5 +26,5 @@ type Command struct {
 	ProgressSync       progress.Model
 	Finder             textinput.Model
 	FinderFilter       string
-	Store            []SqliteCommand
+	Store            []Commands
 }

@@ -34,10 +34,10 @@ var (
 )
 
 type ModelHome struct {
-	home entity.Command
+	home entity.CmdModel
 }
 
-func NewHome(m *entity.Command) *ModelHome {
+func NewHome(m *entity.CmdModel) *ModelHome {
 	count := usecaseCount.Execute()
 	ftotal := usecaseHistoryTotal.Execute()
 	p := paginator.New()
@@ -50,7 +50,7 @@ func NewHome(m *entity.Command) *ModelHome {
 	txt.Prompt = "Finder: "
 
 	home := ModelHome{
-		home: entity.Command{
+		home: entity.CmdModel{
 			Content:          m.Content,
 			Ready:            false,
 			Viewport:         viewport.Model{},

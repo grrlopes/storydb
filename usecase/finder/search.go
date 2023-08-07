@@ -8,7 +8,7 @@ import (
 )
 
 type InputBoundary interface {
-	Execute(string, int, int) ([]entity.SqliteCommand, int, error)
+	Execute(string, int, int) ([]entity.Commands, int, error)
 }
 
 type execute struct {
@@ -21,7 +21,7 @@ func NewFinder(repo repositories.ISqliteRepository) InputBoundary {
 	}
 }
 
-func (e execute) Execute(filter string, limit int, skip int) ([]entity.SqliteCommand, int, error) {
+func (e execute) Execute(filter string, limit int, skip int) ([]entity.Commands, int, error) {
 	result, count, err := e.repository.Search(filter, limit, skip)
 	if err != nil {
 		log.Fatal("Search:", err)

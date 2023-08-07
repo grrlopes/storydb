@@ -9,7 +9,7 @@ import (
 	"github.com/grrlopes/storydb/entity"
 )
 
-func finderCmd(filter string, limit int, offset int) ([]entity.SqliteCommand, int) {
+func finderCmd(filter string, limit int, offset int) ([]entity.Commands, int) {
 	data, total, _ := usecaseFinder.Execute(filter, limit, offset)
 	return data, total
 }

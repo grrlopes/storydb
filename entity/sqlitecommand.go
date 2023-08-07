@@ -1,6 +1,6 @@
 package entity
 
-type SqliteCommand struct {
+type Commands struct {
 	ID      int64
 	EnTitle string
 	Desc    string

@@ -110,33 +110,33 @@ func (sql SQLiteRepository) InsertParsed(data string) (int64, error) {
 	return id, err
 }
 
-func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entity.SqliteCommand, int, error) {
+func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entity.Commands, int, error) {
 	var count int
 
 	stmt, err := sql.db.Prepare("SELECT * FROM command WHERE title LIKE ? limit ? offset ?")
 	if err != nil {
-		return []entity.SqliteCommand{}, count, err
+		return []entity.Commands{}, count, err
 	}
 
 	result, err := stmt.Query("%"+filter+"%", limit, skip)
 	if err != nil {
-		return []entity.SqliteCommand{}, count, err
+		return []entity.Commands{}, count, err
 	}
 
 	defer result.Close()
 
 	err = sql.db.QueryRow("SELECT COUNT(*) FROM command WHERE Title LIKE ?", "%"+filter+"%").Scan(&count)
 
-	var data []entity.SqliteCommand
+	var data []entity.Commands
 
 	for result.Next() {
-		var command entity.SqliteCommand
+		var command entity.Commands
 		if err := result.Scan(
 			&command.ID,
 			&command.EnTitle,
 			&command.Desc,
 		); err != nil {
-			return []entity.SqliteCommand{}, count, err
+			return []entity.Commands{}, count, err
 		}
 
 		data = append(data, command)

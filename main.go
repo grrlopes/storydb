@@ -44,7 +44,7 @@ func (m model) View() string {
 func main() {
 	m := model{
 		home: ui.NewHome(
-			&entity.Command{},
+			&entity.CmdModel{},
 		),
 	}
 
