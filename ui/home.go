@@ -213,20 +213,20 @@ func (m *ModelHome) GetDataView() string {
 
 	for i, v := range m.home.Store {
 		if m.home.Cursor == i && selecty == "arrow" {
-			m.home.Selected = v.EnTitle
-			v.EnTitle = SelecRow.Render(v.EnTitle)
+			m.home.Selected = v.Cmd
+			v.Cmd = SelecRow.Render(v.Cmd)
 		}
 
 		if pagey == i && selecty == "window" {
-			v.EnTitle = SelecRow.Render(v.EnTitle)
+			v.Cmd = SelecRow.Render(v.Cmd)
 		}
 
-		if len(v.EnTitle) > maxLen {
-			title := ShrinkWordMiddle(v.EnTitle, maxLen)
-			v.EnTitle = title
+		if len(v.Cmd) > maxLen {
+			title := ShrinkWordMiddle(v.Cmd, maxLen)
+			v.Cmd = title
 		}
 
-		result = append(result, fmt.Sprintf("\n%s", v.EnTitle))
+		result = append(result, fmt.Sprintf("\n%s", v.Cmd))
 	}
 
 	rowData := strings.Trim(fmt.Sprintf("%s", result), "[]")

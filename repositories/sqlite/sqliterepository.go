@@ -46,7 +46,7 @@ func (sql *SQLiteRepository) All(limit int) ([]repositories.SqliteCmd, int, erro
 		var command repositories.SqliteCmd
 		if err := result.Scan(
 			&command.ID,
-			&command.EnTitle,
+			&command.Cmd,
 			&command.Desc,
 		); err != nil {
 			return []repositories.SqliteCmd{}, count, err
@@ -73,7 +73,7 @@ func (sql *SQLiteRepository) Pagination(limit int, offset int) ([]repositories.S
 		var command repositories.SqliteCmd
 		if err := result.Scan(
 			&command.ID,
-			&command.EnTitle,
+			&command.Cmd,
 			&command.Desc,
 		); err != nil {
 			return []repositories.SqliteCmd{}, err
@@ -97,7 +97,7 @@ func (sql *SQLiteRepository) Count() (int, error) {
 }
 
 func (sql SQLiteRepository) InsertParsed(data string) (int64, error) {
-	res, err := sql.db.Exec("INSERT INTO command(title, description) values(?, ?)", data, "--")
+	res, err := sql.db.Exec("INSERT INTO command(cmd, description) values(?, ?)", data, "--")
 	if err != nil {
 		return 0, err
 	}
@@ -113,7 +113,7 @@ func (sql SQLiteRepository) InsertParsed(data string) (int64, error) {
 func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entity.Commands, int, error) {
 	var count int
 
-	stmt, err := sql.db.Prepare("SELECT * FROM command WHERE title LIKE ? limit ? offset ?")
+	stmt, err := sql.db.Prepare("SELECT * FROM command WHERE cmd LIKE ? limit ? offset ?")
 	if err != nil {
 		return []entity.Commands{}, count, err
 	}
@@ -125,7 +125,7 @@ func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entit
 
 	defer result.Close()
 
-	err = sql.db.QueryRow("SELECT COUNT(*) FROM command WHERE Title LIKE ?", "%"+filter+"%").Scan(&count)
+	err = sql.db.QueryRow("SELECT COUNT(*) FROM command WHERE cmd LIKE ?", "%"+filter+"%").Scan(&count)
 
 	var data []entity.Commands
 
@@ -133,7 +133,7 @@ func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entit
 		var command entity.Commands
 		if err := result.Scan(
 			&command.ID,
-			&command.EnTitle,
+			&command.Cmd,
 			&command.Desc,
 		); err != nil {
 			return []entity.Commands{}, count, err
@@ -148,7 +148,7 @@ func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entit
 func (sql *SQLiteRepository) SearchCount(filter string) (int, error) {
 	var count int
 
-	sql.db.QueryRow("SELECT COUNT(*) FROM command WHERE Title LIKE ?", "%"+filter+"%").Scan(&count)
+	sql.db.QueryRow("SELECT COUNT(*) FROM command WHERE cmd LIKE ?", "%"+filter+"%").Scan(&count)
 
 	return count, nil
 }
