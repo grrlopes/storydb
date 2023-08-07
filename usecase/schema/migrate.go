@@ -7,7 +7,7 @@ import (
 )
 
 type InputBoundary interface {
-	Execute() error
+	Execute()
 }
 
 type execute struct {
@@ -20,12 +20,10 @@ func NewMigrate(repo repositories.ISqliteRepository) InputBoundary {
 	}
 }
 
-func (e execute) Execute() error {
+func (e execute) Execute() {
 	err := e.repository.Migrate()
 
 	if err != nil {
 		log.Fatal("migrate:", err)
 	}
-
-	return err
 }

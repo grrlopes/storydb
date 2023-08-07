@@ -42,6 +42,7 @@ func (m model) View() string {
 }
 
 func main() {
+	usecaseMigrate.Execute()
 	m := model{
 		home: ui.NewHome(
 			&entity.CmdModel{},
