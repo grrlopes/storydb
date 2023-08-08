@@ -1,7 +1,9 @@
 package entity
 
+import "gorm.io/gorm"
+
 type Commands struct {
-	ID      int64
-	Cmd string
-	Desc    string
+	gorm.Model
+	Cmd  string
+	Desc string
 }

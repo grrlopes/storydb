@@ -3,11 +3,12 @@ package listall
 import (
 	"log"
 
+	"github.com/grrlopes/storydb/entity"
 	"github.com/grrlopes/storydb/repositories"
 )
 
 type InputBoundary interface {
-	Execute(int) ([]repositories.SqliteCmd, int, error)
+	Execute(int) ([]entity.Commands, int, error)
 }
 
 type execute struct {
@@ -20,7 +21,7 @@ func NewListAll(repo repositories.ISqliteRepository) InputBoundary {
 	}
 }
 
-func (e execute) Execute(limit int) ([]repositories.SqliteCmd, int, error) {
+func (e execute) Execute(limit int) ([]entity.Commands, int, error) {
 	result, count, err := e.repository.All(limit)
 	if err != nil {
 		log.Fatal("findAll:", err)

@@ -24,18 +24,9 @@ func NewPager(repo repositories.ISqliteRepository) InputBoundary {
 
 func (e execute) Execute(limit int, offset int) ([]entity.Commands, error) {
 	result, err := e.repository.Pagination(limit, offset)
-	items := []entity.Commands{}
-
 	if err != nil {
 		log.Fatal("Pager:", err)
 	}
 
-	for _, value := range result {
-		items = append(
-			items,
-			entity.Commands(value),
-		)
-	}
-
-	return items, err
+	return result, err
 }

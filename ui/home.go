@@ -19,18 +19,21 @@ import (
 	"github.com/grrlopes/storydb/usecase/fhistorytotal"
 	"github.com/grrlopes/storydb/usecase/finder"
 	findercount "github.com/grrlopes/storydb/usecase/finderCount"
+	"github.com/grrlopes/storydb/usecase/listall"
 	"github.com/grrlopes/storydb/usecase/pager"
 )
 
 var (
 	repository          repositories.ISqliteRepository     = sqlite.NewSQLiteRepository()
+	repositoryGorm      repositories.ISqliteRepository     = sqlite.NewGormRepostory()
 	frepository         repositories.IFileParsedRepository = fileparse.NewFparsedRepository()
-	usecasePager        pager.InputBoundary                = pager.NewPager(repository)
+	usecasePager        pager.InputBoundary                = pager.NewPager(repositoryGorm)
 	usecaseCount        count.InputBoundary                = count.NewCount(repository)
 	usecaseHistory      fhistory.InputBoundary             = fhistory.NewFHistory(frepository, repository)
 	usecaseHistoryTotal fhistorytotal.InputBoundary        = fhistorytotal.NewFHistoryTotal(frepository, repository)
 	usecaseFinder       finder.InputBoundary               = finder.NewFinder(repository)
 	usecaseFinderCount  findercount.InputBoundary          = findercount.NewFinderCount(repository)
+	usecaseAll          listall.InputBoundary              = listall.NewListAll(repositoryGorm)
 )
 
 type ModelHome struct {
@@ -144,7 +147,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 				return &m, tea.Quit
 			case "/":
 				m.home.Finder.Focus()
-        m.home.Pagination.Page = 0
+				m.home.Pagination.Page = 0
 			}
 		}
 	case tea.WindowSizeMsg:
@@ -156,7 +159,13 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Ready = true
 	}
 
-	if !m.home.Finder.Focused() {
+	if m.home.Finder.Focused() {
+		*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
+		cmds = append(cmds, cmd)
+		start, end := m.updatepagination()
+		m.home.Start = start
+		m.home.End = end
+	} else {
 		*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
 		cmds = append(cmds, cmd)
 		start, end := m.updatepagination()
@@ -205,9 +214,11 @@ func (m *ModelHome) GetDataView() string {
 		result  []string
 	)
 
-	if !m.home.Finder.Focused() {
+	if m.home.Finder.Focused() {
 		m.home.Store, _ = usecasePager.Execute(m.home.Viewport.Height-2, m.home.Start)
 		m.home.PageTotal = len(m.home.Store)
+	} else {
+		m.home.Store, _ = usecasePager.Execute(m.home.Viewport.Height-2, m.home.Start)
 	}
 	m.home.Pagination.SetTotalPages(*m.home.Count)
 
