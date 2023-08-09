@@ -50,13 +50,11 @@ func (sql *SQLiteRepository) Migrate() error {
 func (sql *SQLiteRepository) All(limit int) ([]entity.Commands, int, error) {
 	var commands []entity.Commands
 
-	// result, err := sql.db.Query("SELECT * FROM commands limit ?", limit)
 	result := sql.database.Limit(limit).Find(&commands)
 
 	if result.Error != nil {
 		return commands, limit, result.Error
 	}
-	// err = sql.db.QueryRow("SELECT COUNT(*) FROM commands").Scan(&count)
 
 	return commands, limit, nil
 }
@@ -99,48 +97,26 @@ func (sql SQLiteRepository) InsertParsed(data string) (int64, error) {
 }
 
 func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entity.Commands, int, error) {
-	var count int
+	var (
+		count    int
+		commands []entity.Commands
+	)
 
-	stmt, err := sql.db.Prepare("SELECT * FROM commands WHERE cmd LIKE ? limit ? offset ?")
-	if err != nil {
-		return []entity.Commands{}, count, err
+	result := sql.database.Limit(limit).Offset(skip).Where("cmd LIKE ?", "%"+filter+"%").Find(&commands)
+	if result.Error != nil {
+		return commands, count, result.Error
 	}
 
-	result, err := stmt.Query("%"+filter+"%", limit, skip)
-	if err != nil {
-		return []entity.Commands{}, count, err
-	}
-
-	defer result.Close()
-
-	err = sql.db.QueryRow("SELECT COUNT(*) FROM commands WHERE cmd LIKE ?", "%"+filter+"%").Scan(&count)
-
-	var data []entity.Commands
-
-	for result.Next() {
-		var command entity.Commands
-		if err := result.Scan(
-			&command.ID,
-			&command.Cmd,
-			&command.Desc,
-		); err != nil {
-			return []entity.Commands{}, count, err
-		}
-
-		data = append(data, command)
-	}
-
-	return data, count, nil
+	return commands, count, result.Error
 }
 
 func (sql *SQLiteRepository) SearchCount(filter string) (int, error) {
 	var (
-		count int64
-		// command entity.Commands
+		count   int64
+		command entity.Commands
 	)
 
-	sql.db.QueryRow("SELECT COUNT(*) FROM command WHERE cmd LIKE ?", "%"+filter+"%").Scan(&count)
-	// sql.db1.Model(&command).Count(&count)
+	sql.database.Model(&command).Where("cmd LIKE ?", "%"+filter+"%").Count(&count)
 
-	return 64, nil
+	return int(count), nil
 }

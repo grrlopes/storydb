@@ -31,8 +31,8 @@ var (
 	usecaseCount        count.InputBoundary                = count.NewCount(repository)
 	usecaseHistory      fhistory.InputBoundary             = fhistory.NewFHistory(frepository, repository)
 	usecaseHistoryTotal fhistorytotal.InputBoundary        = fhistorytotal.NewFHistoryTotal(frepository, repository)
-	usecaseFinder       finder.InputBoundary               = finder.NewFinder(repository)
-	usecaseFinderCount  findercount.InputBoundary          = findercount.NewFinderCount(repository)
+	usecaseFinder       finder.InputBoundary               = finder.NewFinder(repositoryGorm)
+	usecaseFinderCount  findercount.InputBoundary          = findercount.NewFinderCount(repositoryGorm)
 	usecaseAll          listall.InputBoundary              = listall.NewListAll(repositoryGorm)
 )
 
@@ -159,13 +159,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Ready = true
 	}
 
-	if m.home.Finder.Focused() {
-		*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
-		cmds = append(cmds, cmd)
-		start, end := m.updatepagination()
-		m.home.Start = start
-		m.home.End = end
-	} else {
+	if !m.home.Finder.Focused() {
 		*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
 		cmds = append(cmds, cmd)
 		start, end := m.updatepagination()
@@ -214,11 +208,9 @@ func (m *ModelHome) GetDataView() string {
 		result  []string
 	)
 
-	if m.home.Finder.Focused() {
+	if !m.home.Finder.Focused() {
 		m.home.Store, _ = usecasePager.Execute(m.home.Viewport.Height-2, m.home.Start)
 		m.home.PageTotal = len(m.home.Store)
-	} else {
-		m.home.Store, _ = usecasePager.Execute(m.home.Viewport.Height-2, m.home.Start)
 	}
 	m.home.Pagination.SetTotalPages(*m.home.Count)
 
