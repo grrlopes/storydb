@@ -115,10 +115,10 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			}
 			*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
 			cmds = append(cmds, cmd)
+			m.home.Finder, cmd = m.home.Finder.Update(msg)
 			*m.home.Count = finderCount(m.home.Finder.Value())
 			m.home.Start, m.home.End = m.updatepagination()
 			m.home.Store, _ = finderCmd(m.home.Finder.Value(), m.home.Viewport.Height-2, m.home.Start)
-			m.home.Finder, cmd = m.home.Finder.Update(msg)
 			cmds = append(cmds, cmd)
 		} else {
 			switch msg.String() {
