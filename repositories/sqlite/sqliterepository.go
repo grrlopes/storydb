@@ -72,28 +72,19 @@ func (sql *SQLiteRepository) Pagination(limit int, offset int) ([]entity.Command
 }
 
 func (sql *SQLiteRepository) Count() (int, error) {
-	var count int
+	var (
+		count   int64
+		command entity.Commands
+	)
 
-	err := sql.db.QueryRow("SELECT COUNT(*) FROM commands").Scan(&count)
-	if err != nil {
-		return count, err
-	}
+	sql.database.Model(&command).Count(&count)
 
-	return count, err
+	return int(count), nil
 }
 
-func (sql SQLiteRepository) InsertParsed(data string) (int64, error) {
-	res, err := sql.db.Exec("INSERT INTO commands(cmd, desc) values(?, ?)", data, "--")
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := res.LastInsertId()
-	if err != nil {
-		return id, err
-	}
-
-	return id, err
+func (sql SQLiteRepository) InsertParsed(data string) {
+	command := entity.Commands{Cmd: data, Desc: "---"}
+	sql.database.Create(&command)
 }
 
 func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entity.Commands, int, error) {

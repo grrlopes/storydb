@@ -9,7 +9,7 @@ type ISqliteRepository interface {
 	All(int) ([]entity.Commands, int, error)
 	Pagination(int, int) ([]entity.Commands, error)
 	Count() (int, error)
-	InsertParsed(string) (int64, error)
+	InsertParsed(string)
 	Search(string, int, int) ([]entity.Commands, int, error)
 	SearchCount(string) (int, error)
 }
