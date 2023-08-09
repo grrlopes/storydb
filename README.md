@@ -1,8 +1,8 @@
 # 🚀 - Vault cmd-line terminal app
 
 That project can store your bash history in SQLite offers a convenient and effective method for organizing and retrieving command-line history data.
-- Through the capabilities of SQLite, you can effortlessly search, filter, and analyze your Bash history using SQL queries.
-- This integration with a text UI tool empowers you to browse and search your Bash history using interactive commands, enhancing the convenience of accessing and scrutinizing your previous commands.
+- Through the capabilities of Sqlite, you can effortlessly search, filter, and analyze your 'history' using SQL queries behind the scenes.
+- The convenience of TUI empowers you to browse and search your 'history' using simple key strokes, enhancing the convenience of accessing and scrutinizing your previous commands.
 
 ![](screenshots/storydb1.gif)
 
