@@ -1,10 +1,12 @@
 package entity
 
 import (
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
+	"github.com/grrlopes/storydb/helper"
 )
 
 type CmdModel struct {
@@ -26,5 +28,7 @@ type CmdModel struct {
 	ProgressSync       progress.Model
 	Finder             textinput.Model
 	FinderFilter       string
-	Store            []Commands
+	Store              []Commands
+	Keys               helper.Keymap
+	Help               help.Model
 }

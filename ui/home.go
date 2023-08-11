@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -11,6 +12,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/grrlopes/storydb/entity"
+	"github.com/grrlopes/storydb/helper"
 	"github.com/grrlopes/storydb/repositories"
 	"github.com/grrlopes/storydb/repositories/fileparse"
 	"github.com/grrlopes/storydb/repositories/sqlite"
@@ -47,10 +49,11 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 	p.SetTotalPages(count)
 	pro := progress.New(progress.WithDefaultGradient())
 	txt := textinput.New()
-	txt.Placeholder = "type"
+	txt.Placeholder = "type..."
 	txt.CharLimit = 156
 	txt.Width = 50
 	txt.Prompt = "Finder: "
+	h := help.New()
 
 	home := ModelHome{
 		home: entity.CmdModel{
@@ -65,6 +68,8 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 			ProgressSync:     pro,
 			Ftotal:           ftotal,
 			Finder:           txt,
+			Keys:             helper.HotKeys,
+			Help:             h,
 		},
 	}
 	return &home
@@ -157,6 +162,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Pagination.PerPage = msg.Height - 2
 		m.home.Viewport.SetContent(m.GetDataView())
 		m.home.Ready = true
+		m.home.Help.Width = msg.Width
 	}
 
 	if !m.home.Finder.Focused() {
@@ -167,6 +173,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.End = end
 	}
 
+  m.home.Viewport.Update(msg)
 	m.home.Viewport.SetContent(m.GetDataView())
 	return &m, tea.Batch(cmds...)
 }
@@ -188,7 +195,8 @@ func (m ModelHome) View() string {
 	return view.Render(m.HeaderView()) + "\n" +
 		content.Render(m.home.Viewport.View()) + "\n" +
 		m.FooterView() + "\n" +
-		m.paginationView()
+		m.paginationView() + "\n" +
+		m.mappingView()
 }
 
 func (m *ModelHome) GetSelected() string {
@@ -240,6 +248,9 @@ func (m *ModelHome) GetDataView() string {
 func (m *ModelHome) paginationView() string {
 	var b strings.Builder
 	b.WriteString("  " + m.home.Pagination.View())
-	b.WriteString("\n\n  h/l ←/→ page • q: quit\n")
 	return b.String()
+}
+
+func (m ModelHome) mappingView() string {
+	return m.home.Help.View(m.home.Keys)
 }

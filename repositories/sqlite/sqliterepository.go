@@ -35,7 +35,7 @@ func NewGormRepostory() repositories.ISqliteRepository {
 	err = db.AutoMigrate(&entity.Commands{})
 	if err != nil {
 		log.Fatal("not able to migrate", err)
-	}
+	} 
 
 	return &SQLiteRepository{
 		database: db,
