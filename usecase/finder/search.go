@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/grrlopes/storydb/entity"
+	"github.com/grrlopes/storydb/helper"
 	"github.com/grrlopes/storydb/repositories"
 )
 
@@ -22,7 +23,9 @@ func NewFinder(repo repositories.ISqliteRepository) InputBoundary {
 }
 
 func (e execute) Execute(filter string, limit int, skip int) ([]entity.Commands, int, error) {
-	result, count, err := e.repository.Search(filter, limit, skip)
+	parsed := helper.ParseFilter(filter)
+
+	result, count, err := e.repository.Search(parsed, limit, skip)
 	if err != nil {
 		log.Fatal("Search:", err)
 	}

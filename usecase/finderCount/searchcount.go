@@ -3,6 +3,7 @@ package findercount
 import (
 	"log"
 
+	"github.com/grrlopes/storydb/helper"
 	"github.com/grrlopes/storydb/repositories"
 )
 
@@ -21,7 +22,9 @@ func NewFinderCount(repo repositories.ISqliteRepository) InputBoundary {
 }
 
 func (e execute) Execute(filter string) int {
-	count, err := e.repository.SearchCount(filter)
+	parsed := helper.ParseFilter(filter)
+
+	count, err := e.repository.SearchCount(parsed)
 	if err != nil {
 		log.Fatal("Search count:", err)
 	}
