@@ -14,18 +14,6 @@ type SQLiteRepository struct {
 	database *gorm.DB
 }
 
-func NewSQLiteRepository() repositories.ISqliteRepository {
-	db, err := OpenDB()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return &SQLiteRepository{
-		db: db,
-	}
-}
-
 func NewGormRepostory() repositories.ISqliteRepository {
 	db, err := GormOpenDB()
 	if err != nil {
@@ -97,7 +85,10 @@ func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entit
 	if filter == "*" {
 		result = sql.database.Limit(limit).Offset(skip).Where("cmd LIKE ?", "%"+""+"%").Find(&commands)
 	} else {
-		result = sql.database.Raw("SELECT cmd FROM commands WHERE cmd MATCH ? ORDER BY rank", filter).Find(&commands)
+		result = sql.database.Raw(
+			"SELECT cmd FROM commands_fts WHERE cmd MATCH ? ORDER BY rank LIMIT ? OFFSET ?",
+			filter, limit, skip,
+		).Find(&commands)
 	}
 	if result.Error != nil {
 		return commands, count, result.Error
@@ -118,7 +109,7 @@ func (sql *SQLiteRepository) SearchCount(filter string) (int, error) {
 		err = sql.database.Model(&command).Where("cmd LIKE ?", "%"+""+"%").Count(&count).Error
 		countResult = int(count)
 	} else {
-		err = sql.database.Raw("SELECT cmd FROM commands WHERE cmd MATCH ?", filter).Find(&command).Error
+		err = sql.database.Raw("SELECT cmd FROM commands_fts WHERE cmd MATCH ?", filter).Find(&command).Error
 		countResult = len(command)
 	}
 	return countResult, err

@@ -26,7 +26,6 @@ import (
 )
 
 var (
-	repository          repositories.ISqliteRepository     = sqlite.NewSQLiteRepository()
 	repositoryGorm      repositories.ISqliteRepository     = sqlite.NewGormRepostory()
 	frepository         repositories.IFileParsedRepository = fileparse.NewFparsedRepository()
 	usecasePager        pager.InputBoundary                = pager.NewPager(repositoryGorm)
@@ -173,7 +172,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.End = end
 	}
 
-  m.home.Viewport.Update(msg)
+	m.home.Viewport.Update(msg)
 	m.home.Viewport.SetContent(m.GetDataView())
 	return &m, tea.Batch(cmds...)
 }
