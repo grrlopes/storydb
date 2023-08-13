@@ -82,7 +82,7 @@ func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entit
 		result   *gorm.DB
 	)
 
-	if filter == "*" {
+	if filter == `""*` {
 		result = sql.database.Limit(limit).Offset(skip).Where("cmd LIKE ?", "%"+""+"%").Find(&commands)
 	} else {
 		result = sql.database.Raw(
@@ -105,7 +105,7 @@ func (sql *SQLiteRepository) SearchCount(filter string) (int, error) {
 		err         error
 	)
 
-	if filter == "*" {
+	if filter == `""*` {
 		err = sql.database.Model(&command).Where("cmd LIKE ?", "%"+""+"%").Count(&count).Error
 		countResult = int(count)
 	} else {

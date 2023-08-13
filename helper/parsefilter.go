@@ -3,12 +3,19 @@ package helper
 import "strings"
 
 func ParseFilter(filter string) string {
+	var addQuotes []string
+
+	filter = strings.ReplaceAll(filter, "\"", "'")
 
 	trim := strings.TrimSpace(filter)
 
 	split := strings.Split(trim, " ")
 
-	join := strings.Join(split, "* AND ")
+	for _, v := range split {
+		addQuotes = append(addQuotes, `"`+v+`"`)
+	}
+
+	join := strings.Join(addQuotes, "* AND ")
 
 	join += "* AND"
 
