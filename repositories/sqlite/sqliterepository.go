@@ -35,7 +35,7 @@ func NewGormRepostory() repositories.ISqliteRepository {
 	err = db.AutoMigrate(&entity.Commands{})
 	if err != nil {
 		log.Fatal("not able to migrate", err)
-	} 
+	}
 
 	return &SQLiteRepository{
 		database: db,
@@ -43,7 +43,7 @@ func NewGormRepostory() repositories.ISqliteRepository {
 }
 
 func (sql *SQLiteRepository) Migrate() error {
-	_, err := sql.db.Exec(table)
+	err := sql.database.Exec(table).Error
 	return err
 }
 
@@ -91,9 +91,14 @@ func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entit
 	var (
 		count    int
 		commands []entity.Commands
+		result   *gorm.DB
 	)
 
-	result := sql.database.Limit(limit).Offset(skip).Where("cmd LIKE ?", "%"+filter+"%").Find(&commands)
+	if filter == "*" {
+		result = sql.database.Limit(limit).Offset(skip).Where("cmd LIKE ?", "%"+""+"%").Find(&commands)
+	} else {
+		result = sql.database.Raw("SELECT cmd FROM commands WHERE cmd MATCH ? ORDER BY rank", filter).Find(&commands)
+	}
 	if result.Error != nil {
 		return commands, count, result.Error
 	}
@@ -103,11 +108,18 @@ func (sql *SQLiteRepository) Search(filter string, limit int, skip int) ([]entit
 
 func (sql *SQLiteRepository) SearchCount(filter string) (int, error) {
 	var (
-		count   int64
-		command entity.Commands
+		count       int64
+		countResult int
+		command     []entity.Commands
+		err         error
 	)
 
-	sql.database.Model(&command).Where("cmd LIKE ?", "%"+filter+"%").Count(&count)
-
-	return int(count), nil
+	if filter == "*" {
+		err = sql.database.Model(&command).Where("cmd LIKE ?", "%"+""+"%").Count(&count).Error
+		countResult = int(count)
+	} else {
+		err = sql.database.Raw("SELECT cmd FROM commands WHERE cmd MATCH ?", filter).Find(&command).Error
+		countResult = len(command)
+	}
+	return countResult, err
 }
