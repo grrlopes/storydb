@@ -9,7 +9,8 @@ CREATE VIRTUAL TABLE IF NOT EXISTS commands_fts USING fts5(
   created_at,
   deleted_at,
   content='commands',
-  content_rowid='id'
+  content_rowid='id',
+  tokenize="unicode61 tokenchars '-'"
 );
 
 CREATE TRIGGER IF NOT EXISTS commands_insert AFTER INSERT ON commands

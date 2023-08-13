@@ -149,7 +149,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 				m.home.Cursor = 0
 			case "enter":
 				return &m, tea.Quit
-			case "/":
+			case "f":
 				m.home.Finder.Focus()
 				m.home.Pagination.Page = 0
 			}

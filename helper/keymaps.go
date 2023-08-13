@@ -31,8 +31,8 @@ var HotKeys = Keymap{
 		key.WithHelp("enter", "select"),
 	),
 	Finder: key.NewBinding(
-		key.WithKeys("/"),
-		key.WithHelp("/", "finder"),
+		key.WithKeys("f"),
+		key.WithHelp("f", "finder"),
 	),
 	Back: key.NewBinding(
 		key.WithKeys("esc"),
