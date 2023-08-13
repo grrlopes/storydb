@@ -24,6 +24,11 @@ var (
 		return b
 	}()
 
+	HelperStyle = func() lipgloss.Style {
+		b := view.PaddingTop(1)
+		return b
+	}()
+
 	DialogBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#b7cbbf")).
@@ -41,11 +46,11 @@ var (
 			MarginRight(2)
 
 	ButtonDisableStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFFFFF")).
-			Background(lipgloss.Color("#7a0609")).
-			Padding(0, 3).
-			MarginTop(1).
-			MarginRight(2)
+				Foreground(lipgloss.Color("#FFFFFF")).
+				Background(lipgloss.Color("#7a0609")).
+				Padding(0, 3).
+				MarginTop(1).
+				MarginRight(2)
 
 	ActiveButtonStyle = ButtonStyle.Copy().
 				Foreground(lipgloss.Color("#FFFFFF")).

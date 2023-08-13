@@ -29,6 +29,7 @@ type CmdModel struct {
 	Finder             textinput.Model
 	FinderFilter       string
 	Store              []Commands
-	Keys               helper.Keymap
+	HomeKeys           helper.Keymap
+	FinderKeys         helper.Keymap
 	Help               help.Model
 }

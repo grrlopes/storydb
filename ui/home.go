@@ -46,6 +46,8 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 	ftotal := usecaseHistoryTotal.Execute()
 	p := paginator.New()
 	p.SetTotalPages(count)
+	p.KeyMap.NextPage = helper.HotKeysHome.PageNext
+	p.KeyMap.PrevPage = helper.HotKeysHome.PagePrev
 	pro := progress.New(progress.WithDefaultGradient())
 	txt := textinput.New()
 	txt.Placeholder = "type..."
@@ -67,7 +69,8 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 			ProgressSync:     pro,
 			Ftotal:           ftotal,
 			Finder:           txt,
-			Keys:             helper.HotKeys,
+			HomeKeys:         helper.HotKeysHome,
+			FinderKeys:       helper.HotKeysFinder,
 			Help:             h,
 		},
 	}
@@ -188,14 +191,14 @@ func (m ModelHome) View() string {
 			m.home.Finder.View() +
 			content.Render(m.home.Viewport.View()) + "\n" +
 			m.FooterView() + "\n" +
-			m.paginationView()
-
+			m.paginationView() + "\n" +
+			HelperStyle.Render(m.finderKeysView())
 	}
 	return view.Render(m.HeaderView()) + "\n" +
 		content.Render(m.home.Viewport.View()) + "\n" +
 		m.FooterView() + "\n" +
 		m.paginationView() + "\n" +
-		m.mappingView()
+		HelperStyle.Render(m.homeKeysView())
 }
 
 func (m *ModelHome) GetSelected() string {
@@ -250,6 +253,10 @@ func (m *ModelHome) paginationView() string {
 	return b.String()
 }
 
-func (m ModelHome) mappingView() string {
-	return m.home.Help.View(m.home.Keys)
+func (m ModelHome) homeKeysView() string {
+	return m.home.Help.View(m.home.HomeKeys)
+}
+
+func (m ModelHome) finderKeysView() string {
+	return m.home.Help.View(m.home.FinderKeys)
 }
