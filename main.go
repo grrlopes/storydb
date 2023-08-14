@@ -13,14 +13,12 @@ import (
 	"github.com/grrlopes/storydb/repositories"
 	"github.com/grrlopes/storydb/repositories/sqlite"
 	"github.com/grrlopes/storydb/ui"
-	"github.com/grrlopes/storydb/usecase/listall"
 	"github.com/grrlopes/storydb/usecase/schema"
 )
 
 var (
-	repository     repositories.ISqliteRepository = sqlite.NewSQLiteRepository()
-	usecaseMigrate schema.InputBoundary           = schema.NewMigrate(repository)
-	usecaseAll     listall.InputBoundary          = listall.NewListAll(repository)
+	repositoryGorm     repositories.ISqliteRepository = sqlite.NewGormRepostory()
+	usecaseMigrateGorm schema.InputBoundary           = schema.NewMigrate(repositoryGorm)
 )
 
 type model struct {
@@ -42,7 +40,8 @@ func (m model) View() string {
 }
 
 func main() {
-	usecaseMigrate.Execute()
+	usecaseMigrateGorm.Execute()
+
 	m := model{
 		home: ui.NewHome(
 			&entity.CmdModel{},
@@ -52,7 +51,6 @@ func main() {
 	p := tea.NewProgram(
 		&m,
 		tea.WithAltScreen(),
-		tea.WithMouseCellMotion(),
 	)
 
 	_, err := p.Run()
@@ -68,7 +66,7 @@ func main() {
 
 	fd, err := syscall.Open(env, syscall.O_RDWR, 0)
 	if err != nil {
-		fmt.Println("Error opening DEVICE:", err)
+		fmt.Println("Error opening Device:", err)
 		os.Exit(1)
 	}
 

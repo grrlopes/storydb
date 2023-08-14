@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/grrlopes/storydb/helper"
 	"github.com/grrlopes/storydb/repositories"
 )
 
@@ -24,15 +25,14 @@ func NewFHistoryTotal(frepo repositories.IFileParsedRepository, srepo repositori
 }
 
 func (e execute) Execute() int {
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal("could not find the file:", err, "\n")
-		os.Exit(1)
+	env := os.Getenv("HISTFILE")
+	if env == "" {
+		log.Fatalf("%s %s", "could not read HISTFILE\n", helper.ErrEnvHISTFailed)
 	}
 
-	file, err := os.Open(homedir + "/.bash_history")
+	file, err := os.Open(env)
 	if err != nil {
-		log.Println("could not load file:", err)
+		log.Fatalln("could not load file:", err)
 	}
 
 	defer file.Close()

@@ -3,18 +3,19 @@ package fileparse
 import (
 	"log"
 	"os"
+
+	"github.com/grrlopes/storydb/helper"
 )
 
 func OpenHist() (*os.File, error) {
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal("could not find the file:", err, "\n")
-		os.Exit(1)
+	env := os.Getenv("HISTFILE")
+	if env == "" {
+		log.Fatalf("%s %s", "could not read HISTFILE\n", helper.ErrEnvHISTFailed)
 	}
 
-	data, err := os.Open(homedir + "/.bash_history")
+	data, err := os.Open(env)
 	if err != nil {
-		log.Fatal("could not load file:", err, "\n")
+		log.Fatalln("could not load file:", err)
 		os.Exit(1)
 	}
 
