@@ -3,26 +3,30 @@ package helper
 import "github.com/charmbracelet/bubbles/key"
 
 type Keymap struct {
-	Sync     key.Binding
-	Enter    key.Binding
-	Finder   key.Binding
-	Back     key.Binding
-	Quit     key.Binding
-	PageNext key.Binding
-	PagePrev key.Binding
+	Sync        key.Binding
+	Enter       key.Binding
+	Finder      key.Binding
+	Back        key.Binding
+	Quit        key.Binding
+	PageNext    key.Binding
+	PagePrev    key.Binding
+	ResetFinder key.Binding
+	MoveUp      key.Binding
+	MoveDown    key.Binding
 }
 
 func (k Keymap) ShortHelp() []key.Binding {
 	return []key.Binding{
 		k.Quit, k.Back, k.Enter, k.Sync,
 		k.Finder, k.PagePrev, k.PageNext,
+		k.ResetFinder, k.MoveUp, k.MoveDown,
 	}
 }
 
 func (k Keymap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.Back, k.Enter, k.Quit},
-		{k.Sync, k.Finder, k.PageNext, k.PagePrev},
+		{k.Back, k.Enter, k.Quit, k.ResetFinder, k.MoveUp},
+		{k.Sync, k.Finder, k.PageNext, k.PagePrev, k.MoveDown},
 	}
 }
 
@@ -51,6 +55,14 @@ var HotKeysHome = Keymap{
 		key.WithKeys("ctrl+s", "Prev"),
 		key.WithHelp("ctrl+s", "Prev Page"),
 	),
+	MoveUp: key.NewBinding(
+		key.WithKeys("shift+tab", "MoveUp"),
+		key.WithHelp("tab/Up", "↑"),
+	),
+	MoveDown: key.NewBinding(
+		key.WithKeys("tab", "MoveDown"),
+		key.WithHelp("tab/Down", "↓"),
+	),
 }
 
 var HotKeysFinder = Keymap{
@@ -61,4 +73,10 @@ var HotKeysFinder = Keymap{
 	),
 	PageNext: HotKeysHome.PageNext,
 	PagePrev: HotKeysHome.PagePrev,
+	ResetFinder: key.NewBinding(
+		key.WithKeys("ctrl+r", "Reset"),
+		key.WithHelp("ctrl+r", "Reset Finder"),
+	),
+	MoveUp:   HotKeysHome.MoveUp,
+	MoveDown: HotKeysHome.MoveDown,
 }

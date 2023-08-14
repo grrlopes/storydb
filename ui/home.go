@@ -103,18 +103,20 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 	case tea.KeyMsg:
 		if m.home.Finder.Focused() {
 			switch msg.String() {
-			case "up", "k":
+			case "up", "k", "shift+tab":
 				if m.home.Cursor > 0 {
 					m.home.Content = "arrow"
 					m.home.Cursor--
 				}
-			case "down", "j":
+      case "down", "j", "tab":
 				if m.home.Cursor < m.home.PageTotal-1 {
 					m.home.Content = "arrow"
 					m.home.Cursor++
 				}
 			case "enter":
 				return &m, tea.Quit
+      case "ctrl+r":
+        m.home.Finder.Reset()
 			}
 			if msg.String() == "ctrl+c" {
 				m.home.Finder.Reset()
@@ -131,12 +133,12 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			switch msg.String() {
 			case "ctrl+c", "q":
 				return &m, tea.Quit
-			case "up", "k":
+			case "up", "k", "shift+tab":
 				if m.home.Cursor > 0 {
 					m.home.Content = "arrow"
 					m.home.Cursor--
 				}
-			case "down", "j":
+      case "down", "j", "tab":
 				if m.home.Cursor < m.home.PageTotal-1 {
 					m.home.Content = "arrow"
 					m.home.Cursor++
