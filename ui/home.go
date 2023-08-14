@@ -100,6 +100,16 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 	}
 
 	switch msg := msg.(type) {
+	case finderCountMsg:
+		if *m.home.Count != int(msg) {
+			m.home.Pagination.Page = 0
+		}
+		if int(msg) == 0 {
+			m.home.Pagination.SetTotalPages(1)
+		}
+		*m.home.Count = int(msg)
+	case finderMsg:
+		m.home.Store = msg
 	case tea.KeyMsg:
 		if m.home.Finder.Focused() {
 			switch msg.String() {
@@ -108,15 +118,15 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 					m.home.Content = "arrow"
 					m.home.Cursor--
 				}
-      case "down", "j", "tab":
+			case "down", "j", "tab":
 				if m.home.Cursor < m.home.PageTotal-1 {
 					m.home.Content = "arrow"
 					m.home.Cursor++
 				}
 			case "enter":
 				return &m, tea.Quit
-      case "ctrl+r":
-        m.home.Finder.Reset()
+			case "ctrl+r":
+				m.home.Finder.Reset()
 			}
 			if msg.String() == "ctrl+c" {
 				m.home.Finder.Reset()
@@ -125,9 +135,10 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
 			cmds = append(cmds, cmd)
 			m.home.Finder, cmd = m.home.Finder.Update(msg)
-			*m.home.Count = finderCount(m.home.Finder.Value())
+			cmd = finderCount(m.home.Finder.Value())
+			cmds = append(cmds, cmd)
 			m.home.Start, m.home.End = m.updatepagination()
-			m.home.Store, _ = finderCmd(m.home.Finder.Value(), m.home.Viewport.Height-2, m.home.Start)
+			cmd = finderCmd(m.home.Finder, m.home.Viewport.Height-2, m.home.Start)
 			cmds = append(cmds, cmd)
 		} else {
 			switch msg.String() {
@@ -138,7 +149,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 					m.home.Content = "arrow"
 					m.home.Cursor--
 				}
-      case "down", "j", "tab":
+			case "down", "j", "tab":
 				if m.home.Cursor < m.home.PageTotal-1 {
 					m.home.Content = "arrow"
 					m.home.Cursor++

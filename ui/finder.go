@@ -5,18 +5,34 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/grrlopes/storydb/entity"
 )
 
-func finderCmd(filter string, limit int, offset int) ([]entity.Commands, int) {
-	data, total, _ := usecaseFinder.Execute(filter, limit, offset)
-	return data, total
+type (
+	finderMsg      []entity.Commands
+	finderCountMsg int
+)
+
+func finderCmd(filter textinput.Model, limit int, offset int) tea.Cmd {
+	var (
+		cmd  tea.Cmd
+		cmds []tea.Cmd
+	)
+	cmd = func() tea.Msg {
+		data, _, _ := usecaseFinder.Execute(filter.Value(), limit, offset)
+		return finderMsg(data)
+	}
+	cmds = append(cmds, cmd)
+	return tea.Batch(cmds...)
 }
 
-func finderCount(filter string) int {
+func finderCount(filter string) tea.Cmd {
 	count := usecaseFinderCount.Execute(filter)
-	return count
+	return func() tea.Msg {
+		return finderCountMsg(count)
+	}
 }
 
 func finderUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
