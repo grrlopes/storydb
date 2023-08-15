@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -114,27 +115,30 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.PageTotal = len(msg)
 	case tea.KeyMsg:
 		if m.home.Finder.Focused() {
-			switch msg.String() {
-			case "up", "k", "shift+tab":
-				if m.home.Cursor > 0 {
-					m.home.Content = "arrow"
-					m.home.Cursor--
-				}
-			case "down", "j", "tab":
+			switch {
+			case key.Matches(msg, helper.HotKeysFinder.Enter):
+				return &m, tea.Quit
+			case key.Matches(msg, helper.HotKeysFinder.PageNext):
+				m.home.Cursor = 0
+			case key.Matches(msg, helper.HotKeysFinder.ResetFinder):
+				m.home.Finder.Reset()
+			case key.Matches(msg, helper.HotKeysFinder.PagePrev):
+				m.home.Cursor = 0
+			case key.Matches(msg, helper.HotKeysFinder.MoveDown):
 				if m.home.Cursor < m.home.PageTotal-1 {
 					m.home.Content = "arrow"
 					m.home.Cursor++
 				}
-			case "enter":
-				return &m, tea.Quit
-			case "ctrl+r":
-				m.home.Finder.Reset()
-			}
-			if msg.String() == "ctrl+c" {
+			case key.Matches(msg, helper.HotKeysHome.MoveUp):
+				if m.home.Cursor > 0 {
+					m.home.Content = "arrow"
+					m.home.Cursor--
+				}
+			case key.Matches(msg, helper.HotKeysFinder.Quit):
 				m.home.Finder.Reset()
 				m.home.Finder.Blur()
 			}
-			*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
+			*m.home.Pagination, cmd = finderPaginatorCmd(*m.home.Pagination, msg)
 			cmds = append(cmds, cmd)
 			m.home.Finder, cmd = m.home.Finder.Update(msg)
 			cmd = finderCount(m.home.Finder.Value())
@@ -170,6 +174,9 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			case "f":
 				m.home.Finder.Focus()
 				m.home.Pagination.Page = 0
+				m.home.Cursor = 0
+				cmd = finderCmd(m.home.Finder, m.home.Viewport.Height-2, 1)
+				cmds = append(cmds, cmd)
 			}
 		}
 	case tea.WindowSizeMsg:

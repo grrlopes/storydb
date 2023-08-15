@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/grrlopes/storydb/entity"
@@ -13,6 +14,7 @@ import (
 type (
 	finderMsg      []entity.Commands
 	finderCountMsg int
+	finderPagMsg   struct{}
 )
 
 func finderCmd(filter textinput.Model, limit int, offset int) tea.Cmd {
@@ -33,6 +35,20 @@ func finderCount(filter string) tea.Cmd {
 	return func() tea.Msg {
 		return finderCountMsg(count)
 	}
+}
+
+func finderPaginatorCmd(paginator paginator.Model, msg tea.Msg) (paginator.Model, tea.Cmd) {
+	var (
+		cmd  tea.Cmd
+		cmds []tea.Cmd
+	)
+  model, cmd := paginator.Update(msg)
+	cmds = append(cmds, cmd)
+	cmd = func() tea.Msg {
+		return finderPagMsg{}
+	}
+	cmds = append(cmds, cmd)
+	return model, tea.Batch(cmds...)
 }
 
 func finderUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {

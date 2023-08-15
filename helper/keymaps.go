@@ -56,11 +56,11 @@ var HotKeysHome = Keymap{
 		key.WithHelp("ctrl+s", "Prev Page"),
 	),
 	MoveUp: key.NewBinding(
-		key.WithKeys("shift+tab", "MoveUp"),
+		key.WithKeys("shift+tab", "up", "j"),
 		key.WithHelp("tab/Up", "↑"),
 	),
 	MoveDown: key.NewBinding(
-		key.WithKeys("tab", "MoveDown"),
+		key.WithKeys("tab", "down", "k"),
 		key.WithHelp("tab/Down", "↓"),
 	),
 }
@@ -68,13 +68,13 @@ var HotKeysHome = Keymap{
 var HotKeysFinder = Keymap{
 	Enter: HotKeysHome.Enter,
 	Quit: key.NewBinding(
-		key.WithKeys("ctrl+c", "q"),
+		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", "quit"),
 	),
 	PageNext: HotKeysHome.PageNext,
 	PagePrev: HotKeysHome.PagePrev,
 	ResetFinder: key.NewBinding(
-		key.WithKeys("ctrl+r", "Reset"),
+		key.WithKeys("ctrl+r"),
 		key.WithHelp("ctrl+r", "Reset Finder"),
 	),
 	MoveUp:   HotKeysHome.MoveUp,
