@@ -103,6 +103,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 	case finderCountMsg:
 		if *m.home.Count != int(msg) {
 			m.home.Pagination.Page = 0
+			m.home.Cursor = 0
 		}
 		if int(msg) == 0 {
 			m.home.Pagination.SetTotalPages(1)
@@ -110,6 +111,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		*m.home.Count = int(msg)
 	case finderMsg:
 		m.home.Store = msg
+		m.home.PageTotal = len(msg)
 	case tea.KeyMsg:
 		if m.home.Finder.Focused() {
 			switch msg.String() {
@@ -225,10 +227,8 @@ func (m *ModelHome) updatepagination() (int, int) {
 
 func (m *ModelHome) GetDataView() string {
 	var (
-		pagey   = m.home.PageTotal - 1
-		selecty = m.home.Content
-		maxLen  = m.home.Viewport.Width
-		result  []string
+		maxLen = m.home.Viewport.Width
+		result []string
 	)
 
 	if !m.home.Finder.Focused() {
@@ -238,12 +238,8 @@ func (m *ModelHome) GetDataView() string {
 	m.home.Pagination.SetTotalPages(*m.home.Count)
 
 	for i, v := range m.home.Store {
-		if m.home.Cursor == i && selecty == "arrow" {
+		if m.home.Cursor == i {
 			m.home.Selected = v.Cmd
-			v.Cmd = SelecRow.Render(v.Cmd)
-		}
-
-		if pagey == i && selecty == "window" {
 			v.Cmd = SelecRow.Render(v.Cmd)
 		}
 
