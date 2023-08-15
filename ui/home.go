@@ -147,36 +147,36 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			cmd = finderCmd(m.home.Finder, m.home.Viewport.Height-2, m.home.Start)
 			cmds = append(cmds, cmd)
 		} else {
-			switch msg.String() {
-			case "ctrl+c", "q":
+			switch {
+			case key.Matches(msg, helper.HotKeysHome.Quit):
 				return &m, tea.Quit
-			case "up", "k", "shift+tab":
+			case key.Matches(msg, helper.HotKeysHome.MoveUp):
 				if m.home.Cursor > 0 {
 					m.home.Content = "arrow"
 					m.home.Cursor--
 				}
-			case "down", "j", "tab":
+			case key.Matches(msg, helper.HotKeysHome.MoveDown):
 				if m.home.Cursor < m.home.PageTotal-1 {
 					m.home.Content = "arrow"
 					m.home.Cursor++
 				}
-			case "ctrl+g":
-				m.home.Cursor = m.home.PageTotal - 1
-			case "s":
+			case key.Matches(msg, helper.HotKeysHome.Sync):
 				m.home.StatusSyncScreen = false
 				m.home.ActiveSyncScreen = true
 				m.home.Viewport.SetContent(syncView(&m))
 				return &m, cmd
-			case "ctrl+u":
-				m.home.Cursor = 0
-			case "enter":
+			case key.Matches(msg, helper.HotKeysHome.Enter):
 				return &m, tea.Quit
-			case "f":
+			case key.Matches(msg, helper.HotKeysHome.Finder):
 				m.home.Finder.Focus()
 				m.home.Pagination.Page = 0
 				m.home.Cursor = 0
 				cmd = finderCmd(m.home.Finder, m.home.Viewport.Height-2, 1)
 				cmds = append(cmds, cmd)
+			case key.Matches(msg, helper.HotKeysHome.PageNext):
+				m.home.Cursor = 0
+			case key.Matches(msg, helper.HotKeysHome.PagePrev):
+				m.home.Cursor = 0
 			}
 		}
 	case tea.WindowSizeMsg:
