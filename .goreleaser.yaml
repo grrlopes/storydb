@@ -7,15 +7,15 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
 builds:
-  - env:
-      - CGO_ENABLED=0
-    goos:
+  - goos:
       - linux
       - darwin
     main: main.go
     ignore:
       - goos: linux
         goarch: "386"
+    tags:
+      - fts5
 changelog:
   filters:
     exclude:
