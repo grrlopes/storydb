@@ -2,6 +2,24 @@
 
 Important changes will be written here.
 
+## 0.4.0-beta-0 - 19-08-2023
+
+## Fixed
+- Selection hover on list view
+- Paginator on screen finder is being update 
+- Home screen get update to fisrt record after
+open finder textinput
+
+### Added
+- Fulltext search for command field db
+- Helper keymap implemented in every screen
+
+### Changed
+- All string keymap to constant component
+
+### Removed
+- External lib that fill commandline 
+
 ## 0.3.0-alpha-0 - 03-08-2023
 
 ### Fixed
