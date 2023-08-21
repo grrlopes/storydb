@@ -13,13 +13,16 @@ You can conveniently explore and interact with your command-line history, making
 ## ⌨️  Button Mapping
 | Key             | Event                     |
 |-----------------|---------------------------|
-| k, ↑            | up                        |
-| ctr+d, →        | page right                |
+| k, shift+tab, ↑ | up                        |
+| ctrl+d, →       | page right                |
 | j, ↓            | down                      |
-| ctr+s, ←        | page left                 |
-| enter           | select event              |
+| ctrl+s, ←       | page left                 |
+| enter           | select row to fill term   |
+| ctrl+c, q       | Bring down finder or quit |
 | esc             | back                      |
 | s               | sync/load history file    |
+| ctrl+r          | Reset finder text input   |
+| f               | Bring up finder text input|
 
 ## Set up
 - You must set up ```export storydb=$(tty)``` in your global variable profile that is usually located at /etc/profile or $HOME
