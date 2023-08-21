@@ -10,6 +10,17 @@
 
 You can conveniently explore and interact with your command-line history, making it easier to recall past commands, analyze usage patterns, and improve your workflow in the terminal.
 
+## ⌨️  Button Mapping
+| Key             | Event                     |
+|-----------------|---------------------------|
+| k, ↑            | up                        |
+| ctr+d, →        | page right                |
+| j, ↓            | down                      |
+| ctr+s, ←        | page left                 |
+| enter           | select event              |
+| esc             | back                      |
+| s               | sync/load history file    |
+
 ## Set up
 - You must set up ```export storydb=$(tty)``` in your global variable profile that is usually located at /etc/profile or $HOME
 - Your bash/zsh history file should be set up  as ``` export HISTFILE=$HOME/.bash_history``` or ```export HISTFILE=$HOME/.zsh_history```
