@@ -18,11 +18,10 @@ You can conveniently explore and interact with your command-line history, making
 | j, ↓            | down                      |
 | ctrl+s, ←       | page left                 |
 | enter           | select row to fill term   |
-| ctrl+c, q       | Bring down finder or quit |
-| esc             | back                      |
+| ctrl+c, q       | bring down finder or quit |
 | s               | sync/load history file    |
-| ctrl+r          | Reset finder text input   |
-| f               | Bring up finder text input|
+| ctrl+r          | reset finder text input   |
+| f               | bring up finder text input|
 
 ## Set up
 - You must set up ```export storydb=$(tty)``` in your global variable profile that is usually located at /etc/profile or $HOME
