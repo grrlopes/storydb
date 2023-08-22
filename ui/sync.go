@@ -54,19 +54,7 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 		}
 		m.home.Viewport.SetContent(syncView(&m))
 	case tickMsg:
-		if m.home.ProgressSync.Percent() == 1.0 {
-			return &m, nil
-		}
-		Percentage := (float64(m.home.Fcount) / float64(m.home.Ftotal)) * 100
-		cmd := m.home.ProgressSync.SetPercent(float64(Percentage) / float64(100))
-		return &m, tea.Batch(syncTickCmd(), cmd)
-	case progress.FrameMsg:
-		fposition := usecaseHistory.Execute()
-		if fposition > 0 {
-			m.home.Fcount = fposition
-		}
-		progressModel, cmd := m.home.ProgressSync.Update(msg)
-		m.home.ProgressSync = progressModel.(progress.Model)
+		// fposition := usecaseHistory.Execute()
 		m.home.Viewport.SetContent(syncView(&m))
 		return &m, cmd
 	}
@@ -88,29 +76,30 @@ func syncView(m *ModelHome) string {
 	}
 
 	question := lipgloss.NewStyle().
-		Width(m.home.Viewport.Width - 50).
+		Width(m.home.Viewport.Width / 2).
 		Align(lipgloss.Center).
-		Render("Are you sure you want to sync")
+		Render("Are you sure to sync")
 	buttons := lipgloss.JoinHorizontal(lipgloss.Top, okButton, cancelButton)
 	ui := lipgloss.JoinVertical(lipgloss.Center, question, buttons)
 
 	dialog := lipgloss.Place(
-		(m.home.Viewport.Width - 50),
+		(m.home.Viewport.Width / 2),
 		(m.home.Viewport.Height - 50),
 		lipgloss.Left, lipgloss.Center,
 		DialogBoxStyle.Render(ui),
 		lipgloss.WithWhitespaceChars(" "),
 		lipgloss.WithWhitespaceForeground(SubtleStyle),
 	)
-	return BaseStyle.PaddingLeft(20).
-		PaddingTop((m.home.Viewport.Height / 2)).
+
+	return BaseStyle.MarginLeft(m.home.Viewport.Width/4).
+		PaddingTop((m.home.Viewport.Height / 3)).
 		Render(dialog+"\n\n", syncProgressView(m))
 }
 
 func syncProgressView(m *ModelHome) string {
 	pad := strings.Repeat(" ", padding)
 	return "\n" +
-		pad + m.home.ProgressSync.View() + "\n"
+		pad + "--------" + "\n"
 }
 
 func syncTickCmd() tea.Cmd {
