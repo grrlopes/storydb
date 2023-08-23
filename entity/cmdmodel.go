@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/progress"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/grrlopes/storydb/helper"
@@ -32,4 +33,5 @@ type CmdModel struct {
 	HomeKeys           helper.Keymap
 	FinderKeys         helper.Keymap
 	Help               help.Model
+	Spinner            spinner.Model
 }

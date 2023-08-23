@@ -1,10 +1,9 @@
 package ui
 
 import (
-	"strings"
+	"fmt"
 	"time"
 
-	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -33,13 +32,17 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 			m.home.Viewport.SetContent(syncView(&m))
 			return &m, nil
 		case "enter":
-			choiceEntered = true
+			if m.home.StatusSyncScreen {
+				choiceEntered = true
+				cmd = syncTickCmd()
+			} else {
+				choiceEntered = false
+			}
 			m.home.StatusSyncScreen = false
-			return &m, syncTickCmd()
+			return &m, cmd
 		case "q":
 			if m.home.ActiveSyncScreen {
 				m.home.ActiveSyncScreen = false
-				m.home.ProgressSync = progress.NewModel(progress.WithDefaultGradient())
 				m.home.Viewport.SetContent(m.GetDataView())
 				choiceEntered = false
 				return &m, nil
@@ -48,16 +51,13 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.home.Viewport.Width = msg.Width
 		m.home.Viewport.Height = msg.Height
-		m.home.ProgressSync.Width = msg.Width - padding*2 - 4
-		if m.home.ProgressSync.Width > maxWidth {
-			m.home.ProgressSync.Width = maxWidth
-		}
 		m.home.Viewport.SetContent(syncView(&m))
 	case tickMsg:
-		// fposition := usecaseHistory.Execute()
+		cmd = m.home.Spinner.Tick
 		m.home.Viewport.SetContent(syncView(&m))
-		return &m, cmd
+		return &m, tea.Batch(syncTickCmd(), cmd)
 	}
+	m.home.Spinner, cmd = m.home.Spinner.Update(msg)
 	return &m, cmd
 }
 
@@ -70,7 +70,7 @@ func syncView(m *ModelHome) string {
 	} else if choiceEntered {
 		okButton = ButtonDisableStyle.Render("Yes")
 		cancelButton = ButtonDisableStyle.Render("No, take me back")
-	} else {
+	} else if !choiceEntered {
 		okButton = ButtonStyle.Render("Yes")
 		cancelButton = ActiveButtonStyle.Render("No, take me back")
 	}
@@ -97,9 +97,8 @@ func syncView(m *ModelHome) string {
 }
 
 func syncProgressView(m *ModelHome) string {
-	pad := strings.Repeat(" ", padding)
-	return "\n" +
-		pad + "--------" + "\n"
+	sync := fmt.Sprintf("%s Syncing .....", m.home.Spinner.View())
+	return sync
 }
 
 func syncTickCmd() tea.Cmd {

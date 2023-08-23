@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/progress"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -56,6 +57,8 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 	txt.Width = 50
 	txt.Prompt = "Finder: "
 	h := help.New()
+  spin := spinner.New()
+  spin.Spinner = spinner.Jump
 
 	home := ModelHome{
 		home: entity.CmdModel{
@@ -73,6 +76,7 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 			HomeKeys:         helper.HotKeysHome,
 			FinderKeys:       helper.HotKeysFinder,
 			Help:             h,
+			Spinner:          spin,
 		},
 	}
 	return &home
