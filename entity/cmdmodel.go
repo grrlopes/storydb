@@ -22,7 +22,6 @@ type CmdModel struct {
 	Pagination         *paginator.Model
 	Count              *int
 	Fcount             int
-	Ftotal             int
 	ActiveSyncScreen   bool
 	ActiveFinderScreen bool
 	StatusSyncScreen   bool

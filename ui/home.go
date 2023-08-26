@@ -19,7 +19,6 @@ import (
 	"github.com/grrlopes/storydb/repositories/sqlite"
 	"github.com/grrlopes/storydb/usecase/count"
 	"github.com/grrlopes/storydb/usecase/fhistory"
-	"github.com/grrlopes/storydb/usecase/fhistorytotal"
 	"github.com/grrlopes/storydb/usecase/finder"
 	findercount "github.com/grrlopes/storydb/usecase/finderCount"
 	"github.com/grrlopes/storydb/usecase/listall"
@@ -32,7 +31,6 @@ var (
 	usecasePager        pager.InputBoundary                = pager.NewPager(repositoryGorm)
 	usecaseCount        count.InputBoundary                = count.NewCount(repositoryGorm)
 	usecaseHistory      fhistory.InputBoundary             = fhistory.NewFHistory(frepository, repositoryGorm)
-	usecaseHistoryTotal fhistorytotal.InputBoundary        = fhistorytotal.NewFHistoryTotal(frepository, repositoryGorm)
 	usecaseFinder       finder.InputBoundary               = finder.NewFinder(repositoryGorm)
 	usecaseFinderCount  findercount.InputBoundary          = findercount.NewFinderCount(repositoryGorm)
 	usecaseAll          listall.InputBoundary              = listall.NewListAll(repositoryGorm)
@@ -44,7 +42,6 @@ type ModelHome struct {
 
 func NewHome(m *entity.CmdModel) *ModelHome {
 	count := usecaseCount.Execute()
-	ftotal := usecaseHistoryTotal.Execute()
 	p := paginator.New()
 	p.SetTotalPages(count)
 	p.KeyMap.NextPage = helper.HotKeysHome.PageNext
@@ -68,7 +65,6 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 			Count:            &count,
 			ActiveSyncScreen: false,
 			StatusSyncScreen: false,
-			Ftotal:           ftotal,
 			Finder:           txt,
 			HomeKeys:         helper.HotKeysHome,
 			FinderKeys:       helper.HotKeysFinder,
