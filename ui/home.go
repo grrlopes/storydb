@@ -56,7 +56,7 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 	txt.Prompt = "Finder: "
 	h := help.New()
 	spin := spinner.New()
-	spin.Spinner = spinner.Jump
+	spin.Spinner = spinner.Monkey
 
 	home := ModelHome{
 		home: entity.CmdModel{
@@ -118,6 +118,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		if m.home.Finder.Focused() {
 			switch {
 			case key.Matches(msg, helper.HotKeysFinder.Enter):
+				m.home.RowChosen = m.home.Selected
 				return &m, tea.Quit
 			case key.Matches(msg, helper.HotKeysFinder.PageNext):
 				m.home.Cursor = 0
@@ -161,12 +162,13 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 					m.home.Content = "arrow"
 					m.home.Cursor++
 				}
-			case key.Matches(msg, helper.HotKeysHome.Sync):
+			case key.Matches(msg, helper.HotKeysHome.SyncScreen):
 				m.home.StatusSyncScreen = false
 				m.home.ActiveSyncScreen = true
 				m.home.Viewport.SetContent(syncView(&m))
 				return &m, cmd
 			case key.Matches(msg, helper.HotKeysHome.Enter):
+				m.home.RowChosen = m.home.Selected
 				return &m, tea.Quit
 			case key.Matches(msg, helper.HotKeysHome.Finder):
 				m.home.Finder.Focus()
@@ -225,7 +227,7 @@ func (m ModelHome) View() string {
 }
 
 func (m *ModelHome) GetSelected() string {
-	return m.home.Selected
+	return m.home.RowChosen
 }
 
 func (m *ModelHome) updatepagination() (int, int) {

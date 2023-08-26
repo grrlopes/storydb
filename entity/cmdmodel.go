@@ -14,6 +14,7 @@ type CmdModel struct {
 	Cursor             int
 	Ready              bool
 	Selected           string
+	RowChosen          string
 	Viewport           viewport.Model
 	Start              int
 	End                int

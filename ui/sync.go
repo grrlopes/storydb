@@ -42,7 +42,6 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 			if m.home.StatusSyncScreen {
 				choiceEntered = "syncing"
 				cmds = append(cmds, syncTickCmd())
-				// cmds = append(cmds, spinJump())
 			} else {
 				choiceEntered = "notenter"
 			}
@@ -115,16 +114,16 @@ func syncView(m *ModelHome) string {
 func syncProgressView(m *ModelHome) string {
 	switch choiceEntered {
 	case "syncing":
-		return fmt.Sprintf("%s Syncing .....", m.home.Spinner.View())
+		return "Syncing ....."
 	case "synced":
-		return "been synced!!!"
+		return fmt.Sprintf("been synced %s .....", m.home.Spinner.View())
 	default:
 		return "Not syncing yet...."
 	}
 }
 
 func syncTickCmd() tea.Cmd {
-	return tea.Tick(time.Duration(40)*time.Millisecond, func(t time.Time) tea.Msg {
+	return tea.Tick(time.Duration(180)*time.Millisecond, func(t time.Time) tea.Msg {
 		return tickMsg(t)
 	})
 }

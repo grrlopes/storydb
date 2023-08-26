@@ -3,7 +3,7 @@ package helper
 import "github.com/charmbracelet/bubbles/key"
 
 type Keymap struct {
-	Sync        key.Binding
+	SyncScreen  key.Binding
 	Enter       key.Binding
 	Finder      key.Binding
 	Back        key.Binding
@@ -17,7 +17,7 @@ type Keymap struct {
 
 func (k Keymap) ShortHelp() []key.Binding {
 	return []key.Binding{
-		k.Quit, k.Back, k.Enter, k.Sync,
+		k.Quit, k.Back, k.Enter, k.SyncScreen,
 		k.Finder, k.PagePrev, k.PageNext,
 		k.ResetFinder, k.MoveUp, k.MoveDown,
 	}
@@ -26,12 +26,12 @@ func (k Keymap) ShortHelp() []key.Binding {
 func (k Keymap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Back, k.Enter, k.Quit, k.ResetFinder, k.MoveUp},
-		{k.Sync, k.Finder, k.PageNext, k.PagePrev, k.MoveDown},
+		{k.SyncScreen, k.Finder, k.PageNext, k.PagePrev, k.MoveDown},
 	}
 }
 
 var HotKeysHome = Keymap{
-	Sync: key.NewBinding(
+	SyncScreen: key.NewBinding(
 		key.WithKeys("s"),
 		key.WithHelp("s", "sync"),
 	),
