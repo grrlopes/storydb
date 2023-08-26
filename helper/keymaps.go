@@ -13,6 +13,8 @@ type Keymap struct {
 	ResetFinder key.Binding
 	MoveUp      key.Binding
 	MoveDown    key.Binding
+	MoveLeft    key.Binding
+	MoveRight   key.Binding
 }
 
 func (k Keymap) ShortHelp() []key.Binding {
@@ -20,6 +22,7 @@ func (k Keymap) ShortHelp() []key.Binding {
 		k.Quit, k.Back, k.Enter, k.SyncScreen,
 		k.Finder, k.PagePrev, k.PageNext,
 		k.ResetFinder, k.MoveUp, k.MoveDown,
+    k.MoveLeft, k.MoveRight,
 	}
 }
 
@@ -27,6 +30,7 @@ func (k Keymap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Back, k.Enter, k.Quit, k.ResetFinder, k.MoveUp},
 		{k.SyncScreen, k.Finder, k.PageNext, k.PagePrev, k.MoveDown},
+    {k.MoveLeft, k.MoveRight},
 	}
 }
 
@@ -79,4 +83,20 @@ var HotKeysFinder = Keymap{
 	),
 	MoveUp:   HotKeysHome.MoveUp,
 	MoveDown: HotKeysHome.MoveDown,
+}
+
+var HotKeysSync = Keymap{
+	Enter: HotKeysHome.Enter,
+	Quit: key.NewBinding(
+		key.WithKeys("ctrl+c"),
+		key.WithHelp("ctrl+c", "quit"),
+	),
+	MoveLeft: key.NewBinding(
+		key.WithKeys("left"),
+		key.WithHelp("left", ""),
+	),
+	MoveRight: key.NewBinding(
+		key.WithKeys("right"),
+		key.WithHelp("right", ""),
+	),
 }

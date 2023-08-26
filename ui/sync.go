@@ -47,7 +47,7 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 			}
 			m.home.StatusSyncScreen = false
 			return &m, tea.Batch(cmds...)
-		case "q":
+		case "q", "ctrl+c":
 			if m.home.ActiveSyncScreen {
 				m.home.ActiveSyncScreen = false
 				m.home.Viewport.SetContent(m.GetDataView())
@@ -118,7 +118,7 @@ func syncProgressView(m *ModelHome) string {
 	case "synced":
 		return fmt.Sprintf("been synced %s .....", m.home.Spinner.View())
 	default:
-		return "Not syncing yet...."
+		return "Not syncing yet ....."
 	}
 }
 

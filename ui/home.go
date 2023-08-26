@@ -26,14 +26,14 @@ import (
 )
 
 var (
-	repositoryGorm      repositories.ISqliteRepository     = sqlite.NewGormRepostory()
-	frepository         repositories.IFileParsedRepository = fileparse.NewFparsedRepository()
-	usecasePager        pager.InputBoundary                = pager.NewPager(repositoryGorm)
-	usecaseCount        count.InputBoundary                = count.NewCount(repositoryGorm)
-	usecaseHistory      fhistory.InputBoundary             = fhistory.NewFHistory(frepository, repositoryGorm)
-	usecaseFinder       finder.InputBoundary               = finder.NewFinder(repositoryGorm)
-	usecaseFinderCount  findercount.InputBoundary          = findercount.NewFinderCount(repositoryGorm)
-	usecaseAll          listall.InputBoundary              = listall.NewListAll(repositoryGorm)
+	repositoryGorm     repositories.ISqliteRepository     = sqlite.NewGormRepostory()
+	frepository        repositories.IFileParsedRepository = fileparse.NewFparsedRepository()
+	usecasePager       pager.InputBoundary                = pager.NewPager(repositoryGorm)
+	usecaseCount       count.InputBoundary                = count.NewCount(repositoryGorm)
+	usecaseHistory     fhistory.InputBoundary             = fhistory.NewFHistory(frepository, repositoryGorm)
+	usecaseFinder      finder.InputBoundary               = finder.NewFinder(repositoryGorm)
+	usecaseFinderCount findercount.InputBoundary          = findercount.NewFinderCount(repositoryGorm)
+	usecaseAll         listall.InputBoundary              = listall.NewListAll(repositoryGorm)
 )
 
 type ModelHome struct {
@@ -68,6 +68,7 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 			Finder:           txt,
 			HomeKeys:         helper.HotKeysHome,
 			FinderKeys:       helper.HotKeysFinder,
+			SyncKeys:         helper.HotKeysSync,
 			Help:             h,
 			Spinner:          spin,
 		},
@@ -215,6 +216,12 @@ func (m ModelHome) View() string {
 			m.paginationView() + "\n" +
 			HelperStyle.Render(m.finderKeysView())
 	}
+	if m.home.ActiveSyncScreen {
+		return view.Render(m.HeaderView()) + "\n" +
+			content.Render(m.home.Viewport.View()) + "\n" +
+			m.FooterView() + "\n" +
+			HelperStyle.Render(m.SyncKeysView())
+	}
 	return view.Render(m.HeaderView()) + "\n" +
 		content.Render(m.home.Viewport.View()) + "\n" +
 		m.FooterView() + "\n" +
@@ -274,4 +281,8 @@ func (m ModelHome) homeKeysView() string {
 
 func (m ModelHome) finderKeysView() string {
 	return m.home.Help.View(m.home.FinderKeys)
+}
+
+func (m ModelHome) SyncKeysView() string {
+	return m.home.Help.View(m.home.SyncKeys)
 }

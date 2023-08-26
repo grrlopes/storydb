@@ -30,6 +30,7 @@ type CmdModel struct {
 	Store              []Commands
 	HomeKeys           helper.Keymap
 	FinderKeys         helper.Keymap
+	SyncKeys           helper.Keymap
 	Help               help.Model
 	Spinner            spinner.Model
 }
