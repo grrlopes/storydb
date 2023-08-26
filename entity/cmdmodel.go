@@ -3,7 +3,6 @@ package entity
 import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/paginator"
-	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -26,7 +25,6 @@ type CmdModel struct {
 	ActiveSyncScreen   bool
 	ActiveFinderScreen bool
 	StatusSyncScreen   bool
-	ProgressSync       progress.Model
 	Finder             textinput.Model
 	FinderFilter       string
 	Store              []Commands

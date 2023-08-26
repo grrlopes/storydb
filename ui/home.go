@@ -7,7 +7,6 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/paginator"
-	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -50,15 +49,14 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 	p.SetTotalPages(count)
 	p.KeyMap.NextPage = helper.HotKeysHome.PageNext
 	p.KeyMap.PrevPage = helper.HotKeysHome.PagePrev
-	pro := progress.New(progress.WithDefaultGradient())
 	txt := textinput.New()
 	txt.Placeholder = "type..."
 	txt.CharLimit = 156
 	txt.Width = 50
 	txt.Prompt = "Finder: "
 	h := help.New()
-  spin := spinner.New()
-  spin.Spinner = spinner.Jump
+	spin := spinner.New()
+	spin.Spinner = spinner.Jump
 
 	home := ModelHome{
 		home: entity.CmdModel{
@@ -70,7 +68,6 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 			Count:            &count,
 			ActiveSyncScreen: false,
 			StatusSyncScreen: false,
-			ProgressSync:     pro,
 			Ftotal:           ftotal,
 			Finder:           txt,
 			HomeKeys:         helper.HotKeysHome,

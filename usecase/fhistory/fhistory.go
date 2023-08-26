@@ -4,11 +4,14 @@ import (
 	"bufio"
 	"log"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/grrlopes/storydb/repositories"
 )
 
+type SyncMsg int
+
 type InputBoundary interface {
-	Execute() int
+	Execute() tea.Cmd
 }
 
 type execute struct {
@@ -23,7 +26,7 @@ func NewFHistory(frepo repositories.IFileParsedRepository, srepo repositories.IS
 	}
 }
 
-func (e execute) Execute() int {
+func (e execute) Execute() tea.Cmd {
 	fresult := e.frepository.All()
 
 	scanner := bufio.NewScanner(fresult)
@@ -37,5 +40,8 @@ func (e execute) Execute() int {
 		log.Fatal(err)
 	}
 
-	return fcount
+	cmd := func() tea.Msg {
+		return SyncMsg(fcount)
+	}
+	return cmd
 }

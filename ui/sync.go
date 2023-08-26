@@ -6,6 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/grrlopes/storydb/usecase/fhistory"
 )
 
 const (
@@ -13,12 +14,18 @@ const (
 	maxWidth = 80
 )
 
-var choiceEntered bool = false
+var choiceEntered string = "notenter"
 
-type tickMsg time.Time
+type (
+	tickMsg     time.Time
+	spinJumpMsg struct{}
+)
 
 func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
-	var cmd tea.Cmd
+	var (
+		cmd  tea.Cmd
+		cmds []tea.Cmd
+	)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -33,18 +40,19 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 			return &m, nil
 		case "enter":
 			if m.home.StatusSyncScreen {
-				choiceEntered = true
-				cmd = syncTickCmd()
+				choiceEntered = "syncing"
+				cmds = append(cmds, syncTickCmd())
+				// cmds = append(cmds, spinJump())
 			} else {
-				choiceEntered = false
+				choiceEntered = "notenter"
 			}
 			m.home.StatusSyncScreen = false
-			return &m, cmd
+			return &m, tea.Batch(cmds...)
 		case "q":
 			if m.home.ActiveSyncScreen {
 				m.home.ActiveSyncScreen = false
 				m.home.Viewport.SetContent(m.GetDataView())
-				choiceEntered = false
+				choiceEntered = "notenter"
 				return &m, nil
 			}
 		}
@@ -54,8 +62,16 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 		m.home.Viewport.SetContent(syncView(&m))
 	case tickMsg:
 		cmd = m.home.Spinner.Tick
+		cmds = append(cmds, cmd)
+		cmds = append(cmds, spinJump())
+		cmds = append(cmds, syncTickCmd())
 		m.home.Viewport.SetContent(syncView(&m))
-		return &m, tea.Batch(syncTickCmd(), cmd)
+		return &m, tea.Batch(cmds...)
+	case spinJumpMsg:
+		cmd = usecaseHistory.Execute()
+		return &m, cmd
+	case fhistory.SyncMsg:
+		choiceEntered = "synced"
 	}
 	m.home.Spinner, cmd = m.home.Spinner.Update(msg)
 	return &m, cmd
@@ -64,13 +80,13 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 func syncView(m *ModelHome) string {
 	var okButton, cancelButton string
 
-	if m.home.StatusSyncScreen && !choiceEntered {
+	if m.home.StatusSyncScreen && choiceEntered == "notenter" {
 		okButton = ActiveButtonStyle.Render("Yes")
 		cancelButton = ButtonStyle.Render("No, take me back")
-	} else if choiceEntered {
+	} else if choiceEntered == "enter" {
 		okButton = ButtonDisableStyle.Render("Yes")
 		cancelButton = ButtonDisableStyle.Render("No, take me back")
-	} else if !choiceEntered {
+	} else if choiceEntered == "notenter" {
 		okButton = ButtonStyle.Render("Yes")
 		cancelButton = ActiveButtonStyle.Render("No, take me back")
 	}
@@ -97,12 +113,24 @@ func syncView(m *ModelHome) string {
 }
 
 func syncProgressView(m *ModelHome) string {
-	sync := fmt.Sprintf("%s Syncing .....", m.home.Spinner.View())
-	return sync
+	switch choiceEntered {
+	case "syncing":
+		return fmt.Sprintf("%s Syncing .....", m.home.Spinner.View())
+	case "synced":
+		return "been synced!!!"
+	default:
+		return "Not syncing yet...."
+	}
 }
 
 func syncTickCmd() tea.Cmd {
-	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+	return tea.Tick(time.Duration(40)*time.Millisecond, func(t time.Time) tea.Msg {
 		return tickMsg(t)
 	})
+}
+
+func spinJump() tea.Cmd {
+	return func() tea.Msg {
+		return spinJumpMsg{}
+	}
 }
