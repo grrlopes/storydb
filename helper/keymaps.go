@@ -61,7 +61,7 @@ var HotKeysHome = Keymap{
 	),
 	MoveUp: key.NewBinding(
 		key.WithKeys("shift+tab", "up", "j"),
-		key.WithHelp("tab/Up", "↑"),
+		key.WithHelp("shift+tab/Up", "↑"),
 	),
 	MoveDown: key.NewBinding(
 		key.WithKeys("tab", "down", "k"),
@@ -88,8 +88,8 @@ var HotKeysFinder = Keymap{
 var HotKeysSync = Keymap{
 	Enter: HotKeysHome.Enter,
 	Quit: key.NewBinding(
-		key.WithKeys("ctrl+c"),
-		key.WithHelp("ctrl+c", "quit"),
+		key.WithKeys("ctrl+c", "q"),
+		key.WithHelp("ctrl+c/q", "quit"),
 	),
 	MoveLeft: key.NewBinding(
 		key.WithKeys("left"),

@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/grrlopes/storydb/helper"
 	"github.com/grrlopes/storydb/usecase/fhistory"
 )
 
@@ -29,16 +31,16 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "left":
+		switch {
+		case key.Matches(msg, helper.HotKeysSync.MoveLeft):
 			m.home.StatusSyncScreen = true
 			m.home.Viewport.SetContent(syncView(&m))
 			return &m, nil
-		case "right":
+		case key.Matches(msg, helper.HotKeysSync.MoveRight):
 			m.home.StatusSyncScreen = false
 			m.home.Viewport.SetContent(syncView(&m))
 			return &m, nil
-		case "enter":
+		case key.Matches(msg, helper.HotKeysSync.Enter):
 			if m.home.StatusSyncScreen {
 				choiceEntered = "syncing"
 				cmds = append(cmds, syncTickCmd())
@@ -47,7 +49,7 @@ func syncUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {
 			}
 			m.home.StatusSyncScreen = false
 			return &m, tea.Batch(cmds...)
-		case "q", "ctrl+c":
+		case key.Matches(msg, helper.HotKeysSync.Quit):
 			if m.home.ActiveSyncScreen {
 				m.home.ActiveSyncScreen = false
 				m.home.Viewport.SetContent(m.GetDataView())
