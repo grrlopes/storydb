@@ -2,9 +2,26 @@
 
 Important changes will be written here.
 
+## 0.5.0 - 27-08-2023
+
+### Fixed
+- unselected row filled in terminal input
+- sync screen responsiveness
+
+### Added
+- animation spin in sync screen
+
+### Changed
+- string key to mapping key in sync screen
+- sync screen message status
+
+### Removed
+- progress bar
+- usecase file history length
+
 ## 0.4.0-beta-0 - 19-08-2023
 
-## Fixed
+### Fixed
 - Selection hover on list view
 - Paginator on screen finder is being update 
 - Home screen get update to fisrt record after
