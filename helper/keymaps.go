@@ -36,8 +36,8 @@ func (k Keymap) FullHelp() [][]key.Binding {
 
 var HotKeysHome = Keymap{
 	SyncScreen: key.NewBinding(
-		key.WithKeys("s"),
-		key.WithHelp("s", "sync"),
+		key.WithKeys("alt+s"),
+		key.WithHelp("alt+s", "sync"),
 	),
 	Enter: key.NewBinding(
 		key.WithKeys("enter"),
@@ -60,11 +60,11 @@ var HotKeysHome = Keymap{
 		key.WithHelp("ctrl+s", "Prev Page"),
 	),
 	MoveUp: key.NewBinding(
-		key.WithKeys("shift+tab", "up", "j"),
+		key.WithKeys("shift+tab", "up", "k"),
 		key.WithHelp("shift+tab/Up", "↑"),
 	),
 	MoveDown: key.NewBinding(
-		key.WithKeys("tab", "down", "k"),
+		key.WithKeys("tab", "down", "j"),
 		key.WithHelp("tab/Down", "↓"),
 	),
 }

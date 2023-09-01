@@ -6,7 +6,7 @@
 - Download the binary through [Latest version](https://github.com/grrlopes/storydb/releases) and place storydb into ```/bin``` or Clone the project and run ```go run build```
 - You can overwrite your currently crt+r by ```bind '"\C-r": "\C-a storydb \C-j"'``` put it in your global variable as ```/etc/profile``` or ```$HOME/profile```
 
-![](screenshots/storydb1.gif)
+![](screenshots/storydb2.gif)
 
 You can conveniently explore and interact with your command-line history, making it easier to recall past commands, analyze usage patterns, and improve your workflow in the terminal.
 
@@ -19,7 +19,7 @@ You can conveniently explore and interact with your command-line history, making
 | ctrl+s, ←       | page left                 |
 | enter           | select row to fill term   |
 | ctrl+c, q       | bring down finder or quit |
-| s               | sync/load history file    |
+| alt+s           | sync/load history file    |
 | ctrl+r          | reset finder text input   |
 | f               | bring up finder text input|
 
