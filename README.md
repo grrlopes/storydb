@@ -1,5 +1,5 @@
 # 🚀 - Vault cmd-line terminal app
-- That project can store your bash/zsh history in SQLite offers a convenient and effective method for organizing and retrieving command-line typed.
+- That project can read bash/zsh history or might any plain text file content and store it into SQLite, Which offers a convenient and effective method for organizing and retrieving command-line typed.
 - The convenience of TUI empowers you to browse and search your 'history' using simple key strokes, enhancing the convenience of accessing and scrutinizing your previous commands.
 
 ## Installation
