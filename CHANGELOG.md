@@ -2,6 +2,14 @@
 
 Important changes will be written here.
 
+## 0.5.1 - 01-09-2023
+
+### Fixed
+- hotkey up and down
+
+### Changed
+- sync hotkey to alt+s
+
 ## 0.5.0 - 27-08-2023
 
 ### Fixed
