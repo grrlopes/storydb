@@ -1,6 +1,6 @@
 module github.com/grrlopes/storydb
 
-go 1.20
+go 1.21
 
 require (
 	github.com/charmbracelet/bubbles v0.15.0

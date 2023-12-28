@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"syscall"
-	"unsafe"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/grrlopes/storydb/entity"
@@ -64,19 +62,7 @@ func main() {
 		log.Fatalf("%s %s", "Error", helper.ErrEnvFailed)
 	}
 
-	fd, err := syscall.Open(env, syscall.O_RDWR, 0)
-	if err != nil {
-		fmt.Println("Error opening Device:", err)
-		os.Exit(1)
-	}
-
-	defer syscall.Close(fd)
-
 	cmd := m.home.GetSelected()
-	for i := 0; i < len(cmd); i++ {
-		char := cmd[i]
-		b := []byte{char}
-		syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), syscall.TIOCSTI, uintptr(unsafe.Pointer(&b[0])))
-	}
-	fmt.Printf("%+v\n\n", "---")
+
+	helper.Echobuffer(cmd, env)
 }
