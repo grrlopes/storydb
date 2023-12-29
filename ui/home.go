@@ -51,6 +51,12 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 	txt.CharLimit = 156
 	txt.Width = 50
 	txt.Prompt = "Finder: "
+	txtFav := textinput.New()
+	txtFav.Placeholder = "type..."
+	txtFav.CharLimit = 156
+	txtFav.Width = 50
+	txtFav.Prompt = "Favorite: "
+
 	h := help.New()
 	spin := spinner.New()
 	spin.Spinner = spinner.Monkey
@@ -65,10 +71,13 @@ func NewHome(m *entity.CmdModel) *ModelHome {
 			Count:            &count,
 			ActiveSyncScreen: false,
 			StatusSyncScreen: false,
+			FavoriteScreen:   false,
 			Finder:           txt,
+			Favorite:         txtFav,
 			HomeKeys:         helper.HotKeysHome,
 			FinderKeys:       helper.HotKeysFinder,
 			SyncKeys:         helper.HotKeysSync,
+			FavoriteKeys:     helper.HotKeysFavorite,
 			Help:             h,
 			Spinner:          spin,
 		},
@@ -111,6 +120,8 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 	case finderMsg:
 		m.home.Store = msg
 		m.home.PageTotal = len(msg)
+	case favoriteMsg:
+		m.home.Store = msg
 	case tea.KeyMsg:
 		if m.home.Finder.Focused() {
 			switch {
@@ -173,6 +184,10 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 				m.home.Cursor = 0
 				cmd = finderCmd(m.home.Finder, m.home.Viewport.Height-2, 1)
 				cmds = append(cmds, cmd)
+			case key.Matches(msg, helper.HotKeysHome.Favorite):
+				m.home.Favorite.Focus()
+				cmd = FavoriteCmd(m.home.Favorite, m.home.Viewport.Height-2, 1)
+				cmds = append(cmds, cmd)
 			case key.Matches(msg, helper.HotKeysHome.PageNext):
 				m.home.Cursor = 0
 			case key.Matches(msg, helper.HotKeysHome.PagePrev):
@@ -221,6 +236,12 @@ func (m ModelHome) View() string {
 			content.Render(m.home.Viewport.View()) + "\n" +
 			m.FooterView() + "\n" +
 			HelperStyle.Render(m.SyncKeysView())
+	}
+	if m.home.FavoriteScreen {
+		return view.Render(m.HeaderView()) + "\n" +
+			content.Render(m.home.Viewport.View()) + "\n" +
+			m.FooterView() + "\n" +
+			HelperStyle.Render(m.FavoriteKeysView())
 	}
 	return view.Render(m.HeaderView()) + "\n" +
 		content.Render(m.home.Viewport.View()) + "\n" +
@@ -285,4 +306,8 @@ func (m ModelHome) finderKeysView() string {
 
 func (m ModelHome) SyncKeysView() string {
 	return m.home.Help.View(m.home.SyncKeys)
+}
+
+func (m ModelHome) FavoriteKeysView() string {
+	return m.home.Help.View(m.home.FavoriteKeys)
 }

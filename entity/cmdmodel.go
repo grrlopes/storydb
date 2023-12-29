@@ -24,13 +24,18 @@ type CmdModel struct {
 	Fcount             int
 	ActiveSyncScreen   bool
 	ActiveFinderScreen bool
+	ActiveFavScreen    bool
 	StatusSyncScreen   bool
+	FavoriteScreen     bool
 	Finder             textinput.Model
 	FinderFilter       string
+	Favorite           textinput.Model
+	FavoriteFilter     string
 	Store              []Commands
 	HomeKeys           helper.Keymap
 	FinderKeys         helper.Keymap
 	SyncKeys           helper.Keymap
+	FavoriteKeys       helper.Keymap
 	Help               help.Model
 	Spinner            spinner.Model
 }
