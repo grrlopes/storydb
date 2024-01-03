@@ -230,7 +230,7 @@ func (m *ModelHome) GetDataView() string {
 	for i, v := range m.home.Store {
 		if m.home.Cursor == i {
 			m.home.Selected = v.Cmd
-			v.Cmd = SelecRow.Render(v.Cmd)
+			v.Cmd = SelecRow.Render("->", v.Cmd)
 		}
 
 		if len(v.Cmd) > maxLen {
