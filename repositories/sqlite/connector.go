@@ -12,7 +12,7 @@ import (
 )
 
 func GormOpenDB() (*gorm.DB, error) {
-	var store = "/.local/share/storydb/"
+	var store = "/tmp/"
 	homedir, err := os.UserHomeDir()
 	os.Mkdir(homedir+store, 0755)
 
@@ -27,7 +27,8 @@ func GormOpenDB() (*gorm.DB, error) {
 		},
 	)
 
-	db, err := gorm.Open(sqlite.Open(homedir+store+"sqlite.db"), &gorm.Config{
+	db, err := gorm.Open(sqlite.Open(store+"sqlite.db"), &gorm.Config{
+	// db, err := gorm.Open(sqlite.Open(homedir+store+"sqlite.db"), &gorm.Config{
 		Logger: newLogger,
 	})
 	if err != nil {

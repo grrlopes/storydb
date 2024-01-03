@@ -122,7 +122,20 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.PageTotal = len(msg)
 	case favoriteMsg:
 		m.home.Store = msg
+		m.home.PageTotal = len(msg)
 	case tea.KeyMsg:
+		if m.home.Favorite.Focused() {
+			m.home, _ = favoriteFocused(msg, &m.home)
+			// PAREI AQUI
+			*m.home.Pagination, cmd = finderPaginatorCmd(*m.home.Pagination, msg)
+			cmds = append(cmds, cmd)
+			m.home.Favorite, cmd = m.home.Favorite.Update(msg)
+			cmd = favoriteCount(m.home.Favorite.Value())
+			cmds = append(cmds, cmd)
+			m.home.Start, m.home.End = m.updatepagination()
+			cmd = FavoriteCmd(m.home.Favorite, m.home.Viewport.Height-2, m.home.Start)
+			cmds = append(cmds, cmd)
+		}
 		if m.home.Finder.Focused() {
 			switch {
 			case key.Matches(msg, helper.HotKeysFinder.Enter):
@@ -212,6 +225,14 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.End = end
 	}
 
+	if !m.home.Favorite.Focused() {
+		*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
+		cmds = append(cmds, cmd)
+		start, end := m.updatepagination()
+		m.home.Start = start
+		m.home.End = end
+	}
+
 	m.home.Viewport.Update(msg)
 	m.home.Viewport.SetContent(m.GetDataView())
 	return &m, tea.Batch(cmds...)
@@ -231,18 +252,26 @@ func (m ModelHome) View() string {
 			m.paginationView() + "\n" +
 			HelperStyle.Render(m.finderKeysView())
 	}
+	if m.home.Favorite.Focused() {
+		return view.Render(m.HeaderView()) + "\n" +
+			m.home.Favorite.View() +
+			content.Render(m.home.Viewport.View()) + "\n" +
+			// m.FooterView() + "\n" +
+			// m.paginationView() + "\n" +
+			HelperStyle.Render(m.FavoriteKeysView())
+	}
 	if m.home.ActiveSyncScreen {
 		return view.Render(m.HeaderView()) + "\n" +
 			content.Render(m.home.Viewport.View()) + "\n" +
 			m.FooterView() + "\n" +
 			HelperStyle.Render(m.SyncKeysView())
 	}
-	if m.home.FavoriteScreen {
-		return view.Render(m.HeaderView()) + "\n" +
-			content.Render(m.home.Viewport.View()) + "\n" +
-			m.FooterView() + "\n" +
-			HelperStyle.Render(m.FavoriteKeysView())
-	}
+	// if m.home.FavoriteScreen {
+	// 	return view.Render(m.HeaderView()) + "\n" +
+	// 		content.Render(m.home.Viewport.View()) + "\n" +
+	// 		m.FooterView() + "\n" +
+	// 		HelperStyle.Render(m.FavoriteKeysView())
+	// }
 	return view.Render(m.HeaderView()) + "\n" +
 		content.Render(m.home.Viewport.View()) + "\n" +
 		m.FooterView() + "\n" +

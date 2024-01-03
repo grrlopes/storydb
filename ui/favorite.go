@@ -5,14 +5,16 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/grrlopes/storydb/entity"
+	"github.com/grrlopes/storydb/helper"
 )
 
 type (
 	favoriteMsg      []entity.Commands
-	favoriteCountMsg int
+	favoriteCountMsg string
 	favoritePagMsg   struct{}
 )
 
@@ -23,12 +25,50 @@ func FavoriteCmd(filter textinput.Model, limit int, offset int) tea.Cmd {
 	)
 
 	cmd = func() tea.Msg {
-		data, _, _ := usecaseFinder.Execute(filter.Value(), limit, offset)
+		data, _, _ := usecaseFinder.Execute(filter.Value(), 3, offset)
 		return favoriteMsg(data)
 	}
 
 	cmds = append(cmds, cmd)
 	return tea.Batch(cmds...)
+}
+
+func favoriteCount(filter string) tea.Cmd {
+	count := usecaseFinderCount.Execute(filter)
+	return func() tea.Msg {
+		return finderCountMsg(count)
+	}
+}
+
+func favoriteFocused(msg tea.KeyMsg, m *entity.CmdModel) (entity.CmdModel, tea.Msg) {
+	// var (
+	// 	cmd  tea.Cmd
+	// 	cmds []tea.Cmd
+	// )
+	switch {
+	case key.Matches(msg, helper.HotKeysFinder.Enter):
+		m.RowChosen = m.Selected
+	case key.Matches(msg, helper.HotKeysFinder.PageNext):
+		m.Cursor = 0
+	case key.Matches(msg, helper.HotKeysFinder.ResetFinder):
+		m.Finder.Reset()
+	case key.Matches(msg, helper.HotKeysFinder.PagePrev):
+		m.Cursor = 0
+	case key.Matches(msg, helper.HotKeysFinder.MoveDown):
+		if m.Cursor < m.PageTotal-1 {
+			m.Content = "arrow"
+			m.Cursor++
+		}
+	case key.Matches(msg, helper.HotKeysHome.MoveUp):
+		if m.Cursor > 0 {
+			m.Content = "arrow"
+			m.Cursor--
+		}
+	case key.Matches(msg, helper.HotKeysFinder.Quit):
+		m.Finder.Reset()
+		m.Finder.Blur()
+	}
+	return *m, msg
 }
 
 func favoriteUpdate(msg tea.Msg, m ModelHome) (*ModelHome, tea.Cmd) {

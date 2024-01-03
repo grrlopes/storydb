@@ -42,7 +42,7 @@ func finderPaginatorCmd(paginator paginator.Model, msg tea.Msg) (paginator.Model
 		cmd  tea.Cmd
 		cmds []tea.Cmd
 	)
-  model, cmd := paginator.Update(msg)
+	model, cmd := paginator.Update(msg)
 	cmds = append(cmds, cmd)
 	cmd = func() tea.Msg {
 		return finderPagMsg{}
