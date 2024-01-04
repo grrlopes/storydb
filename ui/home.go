@@ -137,30 +137,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			cmds = append(cmds, cmd)
 		}
 		if m.home.Finder.Focused() {
-			switch {
-			case key.Matches(msg, helper.HotKeysFinder.Enter):
-				m.home.RowChosen = m.home.Selected
-				return &m, tea.Quit
-			case key.Matches(msg, helper.HotKeysFinder.PageNext):
-				m.home.Cursor = 0
-			case key.Matches(msg, helper.HotKeysFinder.ResetFinder):
-				m.home.Finder.Reset()
-			case key.Matches(msg, helper.HotKeysFinder.PagePrev):
-				m.home.Cursor = 0
-			case key.Matches(msg, helper.HotKeysFinder.MoveDown):
-				if m.home.Cursor < m.home.PageTotal-1 {
-					m.home.Content = "arrow"
-					m.home.Cursor++
-				}
-			case key.Matches(msg, helper.HotKeysHome.MoveUp):
-				if m.home.Cursor > 0 {
-					m.home.Content = "arrow"
-					m.home.Cursor--
-				}
-			case key.Matches(msg, helper.HotKeysFinder.Quit):
-				m.home.Finder.Reset()
-				m.home.Finder.Blur()
-			}
+			m.home, cmd = finderFocused(msg, &m.home)
 			*m.home.Pagination, cmd = finderPaginatorCmd(*m.home.Pagination, msg)
 			cmds = append(cmds, cmd)
 			m.home.Finder, cmd = m.home.Finder.Update(msg)
@@ -303,7 +280,7 @@ func (m *ModelHome) GetDataView() string {
 	for i, v := range m.home.Store {
 		if m.home.Cursor == i {
 			m.home.Selected = v.Cmd
-			v.Cmd = SelecRow.Render(v.Cmd)
+			v.Cmd = SelecRow.Render("->", v.Cmd)
 		}
 
 		if len(v.Cmd) > maxLen {
