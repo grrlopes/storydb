@@ -114,3 +114,15 @@ func (sql *SQLiteRepository) SearchCount(filter string) (int, error) {
 	}
 	return countResult, err
 }
+
+// AddFavorite implements repositories.ISqliteRepository.
+func (sql *SQLiteRepository) AddFavorite(data string) int64 {
+	command := entity.Commands{Cmd: data, Desc: "---"}
+	resul := sql.database.Create(&command)
+	return resul.RowsAffected
+}
+
+// SearchFavorite implements repositories.ISqliteRepository.
+func (sql *SQLiteRepository) SearchFavorite(string, int, int) ([]entity.Commands, int, error) {
+	panic("unimplemented")
+}

@@ -16,6 +16,7 @@ type Keymap struct {
 	MoveLeft    key.Binding
 	MoveRight   key.Binding
 	Favorite    key.Binding
+	AddFav      key.Binding
 }
 
 func (k Keymap) ShortHelp() []key.Binding {
@@ -24,6 +25,7 @@ func (k Keymap) ShortHelp() []key.Binding {
 		k.Finder, k.PagePrev, k.PageNext,
 		k.ResetFinder, k.MoveUp, k.MoveDown,
 		k.MoveLeft, k.MoveRight, k.Favorite,
+		k.AddFav,
 	}
 }
 
@@ -31,7 +33,7 @@ func (k Keymap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Back, k.Enter, k.Quit, k.ResetFinder, k.MoveUp},
 		{k.SyncScreen, k.Finder, k.PageNext, k.PagePrev, k.MoveDown},
-		{k.MoveLeft, k.MoveRight, k.Favorite},
+		{k.MoveLeft, k.MoveRight, k.Favorite, k.AddFav},
 	}
 }
 
@@ -71,6 +73,10 @@ var HotKeysHome = Keymap{
 	Favorite: key.NewBinding(
 		key.WithKeys("ctrl+f"),
 		key.WithHelp("ctrl+f", "Favorite"),
+	),
+	AddFav: key.NewBinding(
+		key.WithKeys("backspace", "ctrl+b"),
+		key.WithHelp("backspace", "Add Favorite"),
 	),
 }
 
