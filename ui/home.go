@@ -115,11 +115,15 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		}
 		if int(msg) == 0 {
 			m.home.Pagination.SetTotalPages(1)
+		} else {
+			*m.home.Count = int(msg)
+			m.home.Pagination.SetTotalPages(*m.home.Count)
 		}
-		*m.home.Count = int(msg)
 	case finderMsg:
 		m.home.Store = msg
 		m.home.PageTotal = len(msg)
+		m.home.Viewport.Update(msg)
+		m.home.Viewport.SetContent(m.GetDataView())
 	case favoriteCountMsg:
 		if *m.home.Count != int(msg) {
 			m.home.Pagination.Page = 0
@@ -127,11 +131,15 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		}
 		if int(msg) == 0 {
 			m.home.Pagination.SetTotalPages(1)
+		} else {
+			*m.home.Count = int(msg)
+			m.home.Pagination.SetTotalPages(*m.home.Count)
 		}
-		*m.home.Count = int(msg)
 	case favoriteMsg:
 		m.home.Store = msg
 		m.home.PageTotal = len(msg)
+		m.home.Viewport.Update(msg)
+		m.home.Viewport.SetContent(m.GetDataView())
 	case tea.KeyMsg:
 		if m.home.Favorite.Focused() {
 			m.home, cmd = favoriteFocused(msg, &m.home)
@@ -192,27 +200,42 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			case key.Matches(msg, helper.HotKeysHome.PagePrev):
 				m.home.Cursor = 0
 			}
+			*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
+			cmds = append(cmds, cmd)
+			start, end := m.updatepagination()
+			m.home.Start = start
+			m.home.End = end
+
+			m.home.Store, _ = usecasePager.Execute(m.home.Viewport.Height-2, m.home.Start)
+			m.home.PageTotal = len(m.home.Store)
+
+			m.home.Viewport.Update(msg)
+			m.home.Viewport.SetContent(m.GetDataView())
 		}
 	case tea.WindowSizeMsg:
 		m.home.Content = "window"
 		m.home.Viewport.Width = msg.Width
 		m.home.Viewport.Height = msg.Height - 6
 		m.home.Pagination.PerPage = msg.Height - 2
-		m.home.Viewport.SetContent(m.GetDataView())
+		m.initStore()
 		m.home.Ready = true
 		m.home.Help.Width = msg.Width
+		m.home.Viewport.Update(msg)
+		m.home.Viewport.SetContent(m.GetDataView())
+
 	}
 
-	if !m.home.Finder.Focused() || !m.home.Favorite.Focused() {
-		*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
-		cmds = append(cmds, cmd)
-		start, end := m.updatepagination()
-		m.home.Start = start
-		m.home.End = end
-	}
+	// if m.home.Finder.Focused() == false || m.home.Favorite.Focused() == false {
+	// if !m.home.Favorite.Focused() {
+	// *m.home.Pagination, cmd = m.home.Pagination.Update(msg)
+	// cmds = append(cmds, cmd)
+	// start, end := m.updatepagination()
+	// m.home.Start = start
+	// m.home.End = end
+	// }
 
-	m.home.Viewport.Update(msg)
-	m.home.Viewport.SetContent(m.GetDataView())
+	// m.home.Viewport.Update(msg)
+	// m.home.Viewport.SetContent(m.GetDataView())
 	return &m, tea.Batch(cmds...)
 }
 
@@ -267,11 +290,13 @@ func (m *ModelHome) GetDataView() string {
 		result []string
 	)
 
-	if !m.home.Finder.Focused() || !m.home.Favorite.Focused() {
-		m.home.Store, _ = usecasePager.Execute(m.home.Viewport.Height-2, m.home.Start)
-		m.home.PageTotal = len(m.home.Store)
-	}
-	m.home.Pagination.SetTotalPages(*m.home.Count)
+	// if !m.home.Finder.Focused() || !m.home.Favorite.Focused() {
+	// if m.home.Finder.Focused() == false || m.home.Favorite.Focused() == false {
+	// if !m.home.Favorite.Focused() {
+	// m.home.Store, _ = usecasePager.Execute(m.home.Viewport.Height-2, m.home.Start)
+	// m.home.PageTotal = len(m.home.Store)
+	// }
+	// m.home.Pagination.SetTotalPages(*m.home.Count)
 
 	for i, v := range m.home.Store {
 		if m.home.Cursor == i {
@@ -290,6 +315,12 @@ func (m *ModelHome) GetDataView() string {
 	rowData := strings.Trim(fmt.Sprintf("%s", result), "[]")
 
 	return rowData
+}
+
+func (m *ModelHome) initStore() {
+	m.home.Store, _ = usecasePager.Execute(m.home.Viewport.Height-2, m.home.Start)
+	m.home.PageTotal = len(m.home.Store)
+	m.home.Pagination.SetTotalPages(*m.home.Count)
 }
 
 func (m *ModelHome) paginationView() string {
