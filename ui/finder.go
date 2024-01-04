@@ -20,11 +20,14 @@ func finderCmd(filter textinput.Model, limit int, offset int) tea.Cmd {
 		cmd  tea.Cmd
 		cmds []tea.Cmd
 	)
+
 	cmd = func() tea.Msg {
 		data, _, _ := usecaseFinder.Execute(filter.Value(), limit, offset)
 		return finderMsg(data)
 	}
+
 	cmds = append(cmds, cmd)
+
 	return tea.Batch(cmds...)
 }
 
@@ -60,6 +63,7 @@ func finderFocused(msg tea.KeyMsg, m *entity.CmdModel) (entity.CmdModel, tea.Cmd
 		m.Finder.Reset()
 		m.Finder.Blur()
 	}
+
 	return *m, nil
 }
 
@@ -68,11 +72,13 @@ func finderPaginatorCmd(paginator paginator.Model, msg tea.Msg) (paginator.Model
 		cmd  tea.Cmd
 		cmds []tea.Cmd
 	)
+
 	model, cmd := paginator.Update(msg)
 	cmds = append(cmds, cmd)
 	cmd = func() tea.Msg {
 		return finderPagMsg{}
 	}
+
 	cmds = append(cmds, cmd)
 	return model, tea.Batch(cmds...)
 }

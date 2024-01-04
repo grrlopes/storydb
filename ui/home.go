@@ -120,14 +120,22 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 	case finderMsg:
 		m.home.Store = msg
 		m.home.PageTotal = len(msg)
+	case favoriteCountMsg:
+		if *m.home.Count != int(msg) {
+			m.home.Pagination.Page = 0
+			m.home.Cursor = 0
+		}
+		if int(msg) == 0 {
+			m.home.Pagination.SetTotalPages(1)
+		}
+		*m.home.Count = int(msg)
 	case favoriteMsg:
 		m.home.Store = msg
 		m.home.PageTotal = len(msg)
 	case tea.KeyMsg:
 		if m.home.Favorite.Focused() {
-			m.home, _ = favoriteFocused(msg, &m.home)
-			// PAREI AQUI
-			*m.home.Pagination, cmd = finderPaginatorCmd(*m.home.Pagination, msg)
+			m.home, cmd = favoriteFocused(msg, &m.home)
+			*m.home.Pagination, cmd = favoritePaginatorCmd(*m.home.Pagination, msg)
 			cmds = append(cmds, cmd)
 			m.home.Favorite, cmd = m.home.Favorite.Update(msg)
 			cmd = favoriteCount(m.home.Favorite.Value())
@@ -135,8 +143,8 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			m.home.Start, m.home.End = m.updatepagination()
 			cmd = FavoriteCmd(m.home.Favorite, m.home.Viewport.Height-2, m.home.Start)
 			cmds = append(cmds, cmd)
-		}
-		if m.home.Finder.Focused() {
+
+		} else if m.home.Finder.Focused() {
 			m.home, cmd = finderFocused(msg, &m.home)
 			*m.home.Pagination, cmd = finderPaginatorCmd(*m.home.Pagination, msg)
 			cmds = append(cmds, cmd)
@@ -146,6 +154,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			m.home.Start, m.home.End = m.updatepagination()
 			cmd = finderCmd(m.home.Finder, m.home.Viewport.Height-2, m.home.Start)
 			cmds = append(cmds, cmd)
+
 		} else {
 			switch {
 			case key.Matches(msg, helper.HotKeysHome.Quit):
@@ -194,15 +203,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Help.Width = msg.Width
 	}
 
-	if !m.home.Finder.Focused() {
-		*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
-		cmds = append(cmds, cmd)
-		start, end := m.updatepagination()
-		m.home.Start = start
-		m.home.End = end
-	}
-
-	if !m.home.Favorite.Focused() {
+	if !m.home.Finder.Focused() || !m.home.Favorite.Focused() {
 		*m.home.Pagination, cmd = m.home.Pagination.Update(msg)
 		cmds = append(cmds, cmd)
 		start, end := m.updatepagination()
@@ -233,8 +234,8 @@ func (m ModelHome) View() string {
 		return view.Render(m.HeaderView()) + "\n" +
 			m.home.Favorite.View() +
 			content.Render(m.home.Viewport.View()) + "\n" +
-			// m.FooterView() + "\n" +
-			// m.paginationView() + "\n" +
+			m.FooterView() + "\n" +
+			m.paginationView() + "\n" +
 			HelperStyle.Render(m.FavoriteKeysView())
 	}
 	if m.home.ActiveSyncScreen {
@@ -243,12 +244,7 @@ func (m ModelHome) View() string {
 			m.FooterView() + "\n" +
 			HelperStyle.Render(m.SyncKeysView())
 	}
-	// if m.home.FavoriteScreen {
-	// 	return view.Render(m.HeaderView()) + "\n" +
-	// 		content.Render(m.home.Viewport.View()) + "\n" +
-	// 		m.FooterView() + "\n" +
-	// 		HelperStyle.Render(m.FavoriteKeysView())
-	// }
+
 	return view.Render(m.HeaderView()) + "\n" +
 		content.Render(m.home.Viewport.View()) + "\n" +
 		m.FooterView() + "\n" +
@@ -271,7 +267,7 @@ func (m *ModelHome) GetDataView() string {
 		result []string
 	)
 
-	if !m.home.Finder.Focused() {
+	if !m.home.Finder.Focused() || !m.home.Favorite.Focused() {
 		m.home.Store, _ = usecasePager.Execute(m.home.Viewport.Height-2, m.home.Start)
 		m.home.PageTotal = len(m.home.Store)
 	}

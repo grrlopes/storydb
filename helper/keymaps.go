@@ -109,15 +109,15 @@ var HotKeysSync = Keymap{
 var HotKeysFavorite = Keymap{
 	Enter: HotKeysHome.Enter,
 	Quit: key.NewBinding(
-		key.WithKeys("ctrl+c", "q"),
-		key.WithHelp("ctrl+c/q", "quit"),
+		key.WithKeys("ctrl+c"),
+		key.WithHelp("ctrl+c", "quit"),
 	),
-	MoveLeft: key.NewBinding(
-		key.WithKeys("left"),
-		key.WithHelp("left", ""),
+	PageNext: HotKeysHome.PageNext,
+	PagePrev: HotKeysHome.PagePrev,
+	ResetFinder: key.NewBinding(
+		key.WithKeys("ctrl+r"),
+		key.WithHelp("ctrl+r", "Reset Finder"),
 	),
-	MoveRight: key.NewBinding(
-		key.WithKeys("right"),
-		key.WithHelp("right", ""),
-	),
+	MoveUp:   HotKeysHome.MoveUp,
+	MoveDown: HotKeysHome.MoveDown,
 }
