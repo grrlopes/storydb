@@ -224,18 +224,6 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Viewport.SetContent(m.GetDataView())
 
 	}
-
-	// if m.home.Finder.Focused() == false || m.home.Favorite.Focused() == false {
-	// if !m.home.Favorite.Focused() {
-	// *m.home.Pagination, cmd = m.home.Pagination.Update(msg)
-	// cmds = append(cmds, cmd)
-	// start, end := m.updatepagination()
-	// m.home.Start = start
-	// m.home.End = end
-	// }
-
-	// m.home.Viewport.Update(msg)
-	// m.home.Viewport.SetContent(m.GetDataView())
 	return &m, tea.Batch(cmds...)
 }
 
@@ -289,14 +277,6 @@ func (m *ModelHome) GetDataView() string {
 		maxLen = m.home.Viewport.Width
 		result []string
 	)
-
-	// if !m.home.Finder.Focused() || !m.home.Favorite.Focused() {
-	// if m.home.Finder.Focused() == false || m.home.Favorite.Focused() == false {
-	// if !m.home.Favorite.Focused() {
-	// m.home.Store, _ = usecasePager.Execute(m.home.Viewport.Height-2, m.home.Start)
-	// m.home.PageTotal = len(m.home.Store)
-	// }
-	// m.home.Pagination.SetTotalPages(*m.home.Count)
 
 	for i, v := range m.home.Store {
 		if m.home.Cursor == i {
