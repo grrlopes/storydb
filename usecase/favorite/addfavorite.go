@@ -5,7 +5,7 @@ import (
 )
 
 type InputBoundary interface {
-	Execute(string) int64
+	Execute(uint) string
 }
 
 type execute struct {
@@ -18,7 +18,10 @@ func NewFavorite(favrepo repositories.ISqliteRepository) InputBoundary {
 	}
 }
 
-func (e execute) Execute(data string) int64 {
-	result := e.favrepository.AddFavorite(data)
-	return result
+func (e execute) Execute(id uint) string {
+	result := e.favrepository.AddFavorite(id)
+	if result > 0 {
+		return "That cmd was added to Favorite!!!"
+	}
+	return "That favorite already exists!!!"
 }

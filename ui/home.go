@@ -18,6 +18,7 @@ import (
 	"github.com/grrlopes/storydb/repositories/fileparse"
 	"github.com/grrlopes/storydb/repositories/sqlite"
 	"github.com/grrlopes/storydb/usecase/count"
+	"github.com/grrlopes/storydb/usecase/favorite"
 	"github.com/grrlopes/storydb/usecase/fhistory"
 	"github.com/grrlopes/storydb/usecase/finder"
 	findercount "github.com/grrlopes/storydb/usecase/finderCount"
@@ -34,6 +35,7 @@ var (
 	usecaseFinder      finder.InputBoundary               = finder.NewFinder(repositoryGorm)
 	usecaseFinderCount findercount.InputBoundary          = findercount.NewFinderCount(repositoryGorm)
 	usecaseAll         listall.InputBoundary              = listall.NewListAll(repositoryGorm)
+	usecaseAddFavorite favorite.InputBoundary             = favorite.NewFavorite(repositoryGorm)
 )
 
 type ModelHome struct {
@@ -183,10 +185,10 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 				m.home.Viewport.SetContent(syncView(&m))
 				return &m, cmd
 			case key.Matches(msg, helper.HotKeysHome.Enter):
-				m.home.RowChosen = m.home.Selected
+				m.home.RowChosen = m.home.Selected.Cmd
 				return &m, tea.Quit
 			case key.Matches(msg, helper.HotKeysHome.AddFav):
-				m.home.RowChosen = m.home.Selected
+        favoriteInsert(m.home.Selected.ID)
 			case key.Matches(msg, helper.HotKeysHome.Finder):
 				m.home.Finder.Focus()
 				m.home.Pagination.Page = 0
@@ -282,7 +284,7 @@ func (m *ModelHome) GetDataView() string {
 
 	for i, v := range m.home.Store {
 		if m.home.Cursor == i {
-			m.home.Selected = v.Cmd
+			m.home.Selected = v
 			v.Cmd = SelecRow.Render("->", v.Cmd)
 		}
 

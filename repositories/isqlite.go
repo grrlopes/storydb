@@ -12,6 +12,6 @@ type ISqliteRepository interface {
 	InsertParsed(string)
 	Search(string, int, int) ([]entity.Commands, int, error)
 	SearchCount(string) (int, error)
-	AddFavorite(string) int64
+	AddFavorite(uint) int64
 	SearchFavorite(string, int, int) ([]entity.Commands, int, error)
 }

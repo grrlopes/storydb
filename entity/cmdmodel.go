@@ -13,7 +13,7 @@ type CmdModel struct {
 	Content            string
 	Cursor             int
 	Ready              bool
-	Selected           string
+	Selected           Commands
 	RowChosen          string
 	Viewport           viewport.Model
 	Start              int

@@ -41,7 +41,7 @@ func favoriteCount(filter string) tea.Cmd {
 func favoriteFocused(msg tea.KeyMsg, m *entity.CmdModel) (entity.CmdModel, tea.Cmd) {
 	switch {
 	case key.Matches(msg, helper.HotKeysFavorite.Enter):
-		m.RowChosen = m.Selected
+		m.RowChosen = m.Selected.Cmd
 		return *m, tea.Quit
 	case key.Matches(msg, helper.HotKeysFavorite.PageNext):
 		m.Cursor = 0
@@ -83,4 +83,9 @@ func favoritePaginatorCmd(paginator paginator.Model, msg tea.Msg) (paginator.Mod
 	cmds = append(cmds, cmd)
 
 	return model, tea.Batch(cmds...)
+}
+
+func favoriteInsert(id uint) string {
+  result := usecaseAddFavorite.Execute(id)
+  return result
 }

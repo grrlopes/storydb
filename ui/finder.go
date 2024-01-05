@@ -41,7 +41,7 @@ func finderCount(filter string) tea.Cmd {
 func finderFocused(msg tea.KeyMsg, m *entity.CmdModel) (entity.CmdModel, tea.Cmd) {
 	switch {
 	case key.Matches(msg, helper.HotKeysFinder.Enter):
-		m.RowChosen = m.Selected
+		m.RowChosen = m.Selected.Cmd
 		return *m, tea.Quit
 	case key.Matches(msg, helper.HotKeysFinder.PageNext):
 		m.Cursor = 0
