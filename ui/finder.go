@@ -49,6 +49,8 @@ func finderFocused(msg tea.KeyMsg, m *entity.CmdModel) (entity.CmdModel, tea.Cmd
 		m.Finder.Reset()
 	case key.Matches(msg, helper.HotKeysFinder.PagePrev):
 		m.Cursor = 0
+	case key.Matches(msg, helper.HotKeysFinder.AddFav):
+		favoriteInsert(m.Selected.ID)
 	case key.Matches(msg, helper.HotKeysFinder.MoveDown):
 		if m.Cursor < m.PageTotal-1 {
 			m.Content = "arrow"

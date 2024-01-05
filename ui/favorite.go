@@ -86,6 +86,6 @@ func favoritePaginatorCmd(paginator paginator.Model, msg tea.Msg) (paginator.Mod
 }
 
 func favoriteInsert(id uint) string {
-  result := usecaseAddFavorite.Execute(id)
-  return result
+	result := usecaseAddFavorite.Execute(id)
+	return result
 }

@@ -187,8 +187,6 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			case key.Matches(msg, helper.HotKeysHome.Enter):
 				m.home.RowChosen = m.home.Selected.Cmd
 				return &m, tea.Quit
-			case key.Matches(msg, helper.HotKeysHome.AddFav):
-        favoriteInsert(m.home.Selected.ID)
 			case key.Matches(msg, helper.HotKeysHome.Finder):
 				m.home.Finder.Focus()
 				m.home.Pagination.Page = 0
@@ -201,6 +199,8 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 				cmds = append(cmds, cmd)
 			case key.Matches(msg, helper.HotKeysHome.PageNext):
 				m.home.Cursor = 0
+			case key.Matches(msg, helper.HotKeysHome.AddFav):
+				favoriteInsert(m.home.Selected.ID)
 			case key.Matches(msg, helper.HotKeysHome.PagePrev):
 				m.home.Cursor = 0
 			}

@@ -94,6 +94,10 @@ var HotKeysFinder = Keymap{
 	),
 	MoveUp:   HotKeysHome.MoveUp,
 	MoveDown: HotKeysHome.MoveDown,
+	AddFav: key.NewBinding(
+		key.WithKeys("ctrl+b"),
+		key.WithHelp("ctrl+b", "Add Favorite"),
+	),
 }
 
 var HotKeysSync = Keymap{
