@@ -24,6 +24,11 @@ var (
 		return b
 	}()
 
+  Warning = func(width int, color string) lipgloss.Style {
+    b := view.MarginLeft(width).Background(lipgloss.Color(color))
+    return b
+  }
+
 	HelperStyle = func() lipgloss.Style {
 		b := view.PaddingTop(1)
 		return b

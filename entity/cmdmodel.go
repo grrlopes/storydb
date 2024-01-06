@@ -9,6 +9,12 @@ import (
 	"github.com/grrlopes/storydb/helper"
 )
 
+type Warning struct{
+  Active bool
+  Message string
+  Color string
+}
+
 type CmdModel struct {
 	Content            string
 	Cursor             int
@@ -38,4 +44,5 @@ type CmdModel struct {
 	FavoriteKeys       helper.Keymap
 	Help               help.Model
 	Spinner            spinner.Model
+	Warning            Warning
 }

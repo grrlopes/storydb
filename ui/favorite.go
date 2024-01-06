@@ -85,7 +85,8 @@ func favoritePaginatorCmd(paginator paginator.Model, msg tea.Msg) (paginator.Mod
 	return model, tea.Batch(cmds...)
 }
 
-func favoriteInsert(id uint) string {
+func favoriteInsert(id uint, m *entity.CmdModel) {
 	result := usecaseAddFavorite.Execute(id)
-	return result
+
+	m.Warning = result
 }

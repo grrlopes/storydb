@@ -143,6 +143,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 		m.home.Viewport.Update(msg)
 		m.home.Viewport.SetContent(m.GetDataView())
 	case tea.KeyMsg:
+		m.home.Warning.Active = false
 		if m.home.Favorite.Focused() {
 			m.home, cmd = favoriteFocused(msg, &m.home)
 			*m.home.Pagination, cmd = favoritePaginatorCmd(*m.home.Pagination, msg)
@@ -200,7 +201,7 @@ func (m ModelHome) Update(msg tea.Msg) (*ModelHome, tea.Cmd) {
 			case key.Matches(msg, helper.HotKeysHome.PageNext):
 				m.home.Cursor = 0
 			case key.Matches(msg, helper.HotKeysHome.AddFav):
-				favoriteInsert(m.home.Selected.ID)
+				favoriteInsert(m.home.Selected.ID, &m.home)
 			case key.Matches(msg, helper.HotKeysHome.PagePrev):
 				m.home.Cursor = 0
 			}
@@ -238,6 +239,18 @@ func (m ModelHome) View() string {
 		return "\n  Loading..."
 	}
 	if m.home.Finder.Focused() {
+		if m.home.Warning.Active {
+			return view.Render(m.HeaderView()) + "\n" +
+				m.home.Finder.View() +
+				content.Render(m.home.Viewport.View()) + "\n" +
+				m.FooterView() + "\n" +
+				m.paginationView() + " " +
+				Warning(
+					m.home.Viewport.Width/4,
+					m.home.Warning.Color,
+				).Render(m.home.Warning.Message) + "\n" +
+				HelperStyle.Render(m.finderKeysView())
+		}
 		return view.Render(m.HeaderView()) + "\n" +
 			m.home.Finder.View() +
 			content.Render(m.home.Viewport.View()) + "\n" +

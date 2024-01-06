@@ -24,7 +24,7 @@ type model struct {
 }
 
 func (m model) Init() tea.Cmd {
-	return nil
+	return tea.SetWindowTitle("Storydb")
 }
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

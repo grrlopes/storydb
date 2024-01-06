@@ -1,11 +1,12 @@
 package favorite
 
 import (
+	"github.com/grrlopes/storydb/entity"
 	"github.com/grrlopes/storydb/repositories"
 )
 
 type InputBoundary interface {
-	Execute(uint) string
+	Execute(uint) entity.Warning
 }
 
 type execute struct {
@@ -18,10 +19,18 @@ func NewFavorite(favrepo repositories.ISqliteRepository) InputBoundary {
 	}
 }
 
-func (e execute) Execute(id uint) string {
+func (e execute) Execute(id uint) entity.Warning {
 	result := e.favrepository.AddFavorite(id)
 	if result > 0 {
-		return "That cmd was added to Favorite!!!"
+		return entity.Warning{
+			Active:  true,
+			Message: "That cmd has been added to Favorite!!!",
+			Color:   "#006633",
+		}
 	}
-	return "That favorite already exists!!!"
+	return entity.Warning{
+		Active:  true,
+		Message: "That cmd is already added to favorite!..",
+		Color:   "#990000",
+	}
 }
