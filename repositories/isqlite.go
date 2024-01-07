@@ -13,5 +13,5 @@ type ISqliteRepository interface {
 	Search(string, int, int) ([]entity.Commands, int, error)
 	SearchCount(string) (int, error)
 	AddFavorite(uint) int64
-	SearchFavorite(string, int, int) ([]entity.Commands, int, error)
+	SearchFavorite(string, int, int) ([]entity.FavoriteView, int, error)
 }
