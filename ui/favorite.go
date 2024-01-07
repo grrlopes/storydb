@@ -22,7 +22,7 @@ func FavoriteCmd(filter textinput.Model, limit int, offset int) tea.Cmd {
 	)
 
 	cmd = func() tea.Msg {
-		data, _, _ := usecaseFinder.Execute(filter.Value(), limit, offset)
+		data, _, _ := usecaseFilterFav.Execute(filter.Value(), limit, offset)
 		return favoriteMsg(data)
 	}
 

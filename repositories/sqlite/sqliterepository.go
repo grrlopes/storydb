@@ -123,6 +123,16 @@ func (sql *SQLiteRepository) AddFavorite(id uint) int64 {
 }
 
 // SearchFavorite implements repositories.ISqliteRepository.
-func (sql *SQLiteRepository) SearchFavorite(string, int, int) ([]entity.Commands, int, error) {
-	panic("unimplemented")
+func (sql *SQLiteRepository) SearchFavorite(filter string, limit int, skip int) ([]entity.FavoriteView, int, error) {
+	var (
+		count    int
+		favorite []entity.FavoriteView
+		result   *gorm.DB
+	)
+	result = sql.database.Limit(limit).Offset(skip).Where("cmd LIKE ?", "%"+filter+"%").Table("favorites_view").Find(&favorite)
+	if result.Error != nil {
+		return favorite, count, result.Error
+	}
+
+	return favorite, count, result.Error
 }
