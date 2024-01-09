@@ -146,7 +146,7 @@ func (sql *SQLiteRepository) SearchFavoriteCount(filter string) (int, error) {
 	)
 
 	if filter == "" {
-		err = sql.database.Model(&favorite).Where("cmd LIKE ?", "%"+filter+"%").Count(&count).Error
+		err = sql.database.Model(&favorite).Where("cmd LIKE ?", "%"+filter+"%").Table("favorites_view").Count(&count).Error
 		countResult = int(count)
 	} else {
 		err = sql.database.Where("cmd LIKE ?", "%"+filter+"%").Table("favorites_view").Find(&favorite).Error

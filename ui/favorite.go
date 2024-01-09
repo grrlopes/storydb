@@ -32,7 +32,7 @@ func FavoriteCmd(filter textinput.Model, limit int, offset int) tea.Cmd {
 }
 
 func favoriteCount(filter string) tea.Cmd {
-	count := usecaseFinderCount.Execute(filter)
+	count := usecaseCountFav.Execute(filter)
 	return func() tea.Msg {
 		return favoriteCountMsg(count)
 	}

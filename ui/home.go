@@ -19,6 +19,7 @@ import (
 	"github.com/grrlopes/storydb/repositories/sqlite"
 	"github.com/grrlopes/storydb/usecase/count"
 	"github.com/grrlopes/storydb/usecase/favorite"
+	favoritecount "github.com/grrlopes/storydb/usecase/favoriteCount"
 	"github.com/grrlopes/storydb/usecase/favoriteFilter"
 	"github.com/grrlopes/storydb/usecase/fhistory"
 	"github.com/grrlopes/storydb/usecase/finder"
@@ -38,6 +39,7 @@ var (
 	usecaseAll         listall.InputBoundary              = listall.NewListAll(repositoryGorm)
 	usecaseAddFavorite favorite.InputBoundary             = favorite.NewFavorite(repositoryGorm)
 	usecaseFilterFav   favoriteFilter.InputBoundary       = favoriteFilter.NewFavoriteFilter(repositoryGorm)
+	usecaseCountFav    favoritecount.InputBoundary        = favoritecount.NewFavoriteCount(repositoryGorm)
 )
 
 type ModelHome struct {
