@@ -136,3 +136,21 @@ func (sql *SQLiteRepository) SearchFavorite(filter string, limit int, skip int) 
 
 	return favorite, count, result.Error
 }
+
+func (sql *SQLiteRepository) SearchFavoriteCount(filter string) (int, error) {
+	var (
+		count       int64
+		countResult int
+		favorite    []entity.FavoriteView
+		err         error
+	)
+
+	if filter == "" {
+		err = sql.database.Model(&favorite).Where("cmd LIKE ?", "%"+filter+"%").Count(&count).Error
+		countResult = int(count)
+	} else {
+		err = sql.database.Where("cmd LIKE ?", "%"+filter+"%").Table("favorites_view").Find(&favorite).Error
+		countResult = len(favorite)
+	}
+	return countResult, err
+}
