@@ -5,6 +5,8 @@
 ## Installation
 - Download the binary through [Latest version](https://github.com/grrlopes/storydb/releases) and place storydb into ```/bin``` or Clone the project and run ```go run build```
 - You can overwrite your currently crt+r by ```bind '"\C-r": "\C-a storydb \C-j"'``` put it in your global variable as ```/etc/profile``` or ```$HOME/profile```
+- Running ```sysctl -w dev.tty.legacy_tiocsti=1``` if your kernel is 6.2 or above.
+  There is a reason why kernel devs disabled it. [Reason](https://cateee.net/lkddb/web-lkddb/LEGACY_TIOCSTI.html)
 
 ![](screenshots/storydb2.gif)
 
