@@ -2,6 +2,12 @@
 
 Important changes will be written here.
 
+## 0.5.2 - 11-01-2024
+
+### Added
+- Guidance to avoid kernel issue
+- MIT License
+
 ## 0.5.1 - 01-09-2023
 
 ### Fixed
