@@ -47,6 +47,18 @@ func (sql *SQLiteRepository) All(limit int) ([]entity.Commands, int, error) {
 	return commands, limit, nil
 }
 
+func (sql *SQLiteRepository) AllWithoutLimit() ([]entity.Commands, error) {
+	var commands []entity.Commands
+
+	result := sql.database.Find(&commands)
+
+	if result.Error != nil {
+		return commands, result.Error
+	}
+
+	return commands, nil
+}
+
 // Pagination implements repositories.ISqliteRepository
 func (sql *SQLiteRepository) Pagination(limit int, offset int) ([]entity.Commands, error) {
 	var commands []entity.Commands

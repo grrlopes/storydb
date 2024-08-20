@@ -7,6 +7,7 @@ type SqliteCmd entity.Commands
 type ISqliteRepository interface {
 	Migrate() error
 	All(int) ([]entity.Commands, int, error)
+	AllWithoutLimit() ([]entity.Commands, error)
 	Pagination(int, int) ([]entity.Commands, error)
 	Count() (int, error)
 	InsertParsed(string)
