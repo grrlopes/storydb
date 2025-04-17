@@ -13,4 +13,5 @@ type ISqliteRepository interface {
 	InsertParsed(string)
 	Search(string, int, int) ([]entity.Commands, int, error)
 	SearchCount(string) (int, error)
+	IndexSearch(filter []interface{}) ([]entity.Commands, int, error)
 }

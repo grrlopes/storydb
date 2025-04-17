@@ -2,7 +2,9 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/grrlopes/storydb/entity"
 	"github.com/grrlopes/storydb/repositories"
@@ -125,4 +127,23 @@ func (sql *SQLiteRepository) SearchCount(filter string) (int, error) {
 		countResult = len(command)
 	}
 	return countResult, err
+}
+
+func (sql *SQLiteRepository) IndexSearch(filter []interface{}) ([]entity.Commands, int, error) {
+	var (
+		count    int
+		commands []entity.Commands
+		result   *gorm.DB
+	)
+
+	placeholders := strings.TrimRight(strings.Repeat("?,", len(filter)), ",")
+	query := fmt.Sprintf("SELECT cmd FROM commands WHERE id IN (%s)", placeholders)
+
+	result = sql.database.Raw(query, filter...).Scan(&commands)
+
+  for _, v := range commands {
+    fmt.Println(v.Cmd)
+  }
+
+	return commands, count, result.Error
 }
